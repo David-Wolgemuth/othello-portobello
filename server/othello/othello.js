@@ -73,16 +73,16 @@ function checkDirection(board, move, direction)  // -> [{ x: Int, y: Int }]
     var opponent = (move.player % 2) + 1;
 
     increment(tile, direction);
-    if (!(inBounds(tile) && board[tile.x][tile.y] == opponent)) {
+    if (!(inBounds(tile) && board[tile.y][tile.x] == opponent)) {
         //  Touching Tile Must Be Opponent
         return flipped;
     }
     increment(tile, direction);
-    while(inBounds(tile) && board[tile.x][tile.y] == opponent) {
+    while(inBounds(tile) && board[tile.y][tile.x] == opponent) {
         // Traverse Down Opponent Tiles Towards Player Tile
         increment(tile, direction);
     }
-    if (!inBounds(tile) || board[tile.x][tile.y] != move.player) {
+    if (!inBounds(tile) || board[tile.y][tile.x] != move.player) {
         // End Tile Must Be Player's Tile
         return flipped;
     }
@@ -106,31 +106,15 @@ module.exports = (function ()
     */
     {
         var board = [];
-        for (var x = 0; x < TILES; x++) {
+        for (var y = 0; y < TILES; y++) {
             board.push([]);
-            for (var y = 0; y < TILES; y++) {
-                board[x].push(0);
+            for (var x = 0; x < TILES; x++) {
+                board[y].push(0);
             }
         }
         board[3][3] = 1; board[3][4] = 2;
         board[4][3] = 2; board[4][4] = 1;
         return board;
-    };
-    Othello.orientedBoardAsString = function (board)
-    /*
-        -> "0, 0 ... \n0 0 ..." (Reverses Board Array!  X mapped to row, Y mapped to column)
-    */
-    {
-        validate({ board: board });
-
-        var str = "";
-        for (var y = 0; y < TILES; y++) {
-            for (var x = 0; x < TILES; x++) {
-                str += String(board[x][y]) + ", ";
-            }
-            str += "\n";
-        }
-        return str;
     };
     Othello.tilesFlippedOnMove = function (board, move)
     /* 
@@ -140,7 +124,7 @@ module.exports = (function ()
         validate({ board: board, move: move });
 
         var flipped = [];
-        if (board[move.x][move.y]) {
+        if (board[move.y][move.x]) {
             // Already Has Tile
             return flipped;
         }
@@ -225,9 +209,9 @@ module.exports = (function ()
         if (!flipped.length) {
             return false;
         }
-        board[move.x][move.y] = move.player;
+        board[move.y][move.x] = move.player;
         flipped.forEach(function (flip) {
-            board[flip.x][flip.y] = move.player;
+            board[flip.y][flip.x] = move.player;
         });
         return true;
     };
@@ -239,9 +223,9 @@ module.exports = (function ()
         validate({ board: board });
 
         var score = [0, 0, 0];
-        for (var x = 0; x < TILES; x++) {
-            for (var y = 0; y < TILES; y++) {
-                var player = board[x][y];
+        for (var y = 0; y < TILES; y++) {
+            for (var x = 0; x < TILES; x++) {
+                var player = board[y][x];
                 score[player]++;
             }
         }

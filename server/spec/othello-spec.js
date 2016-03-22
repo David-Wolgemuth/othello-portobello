@@ -23,7 +23,7 @@ describe("Othello.makeMove()", function () {
         var board = othello.makeEmptyBoard();
         var move = { x: 2, y: 3, player: 2 };
         othello.makeMove(board, move);
-        expect(board[move.x][move.y]).toEqual(move.player);
+        expect(board[move.y][move.x]).toEqual(move.player);
     });
     it("should return appropriate boolean", function () {
         var board = othello.makeEmptyBoard();
