@@ -6,13 +6,8 @@
 var express     = require("express");
 var bodyParser  = require("body-parser");
 var path        = require("path");
-var expressJwt  = require("express-jwt");
-var jwt         = require("jsonwebtoken");
 
 var app = express();
-var secret = require("./server/config/auth.js").secret;
-
-app.use("/api", expressJwt({ secret: secret }));
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
