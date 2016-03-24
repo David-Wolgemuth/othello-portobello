@@ -13,12 +13,12 @@ describe("require(\"keys\")", function () {
 });
 
 frisby.create("Stop Users Without Tokens")
-    .get(url)
+    .get(url + "api")
     .expectStatus(403)
 .toss();
 
 frisby.create("Stop Requests With Bad Tokens")
-    .get(url)
+    .get(url + "api")
     .addHeader("x-auth-token", "SomeBadToken")
     .expectStatus(401)
 .toss();
@@ -29,7 +29,7 @@ frisby.globalSetup({ // globalSetup is for ALL requests
     }
 });
 frisby.create("Allow Users With Valid Tokens")
-    .get(url)
+    .get(url + "api")
     .expectStatus(200)
 .toss();
 

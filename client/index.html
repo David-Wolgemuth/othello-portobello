@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html ng-app="othelloApp">
+<head>
+		<title>Othello Portobello</title>
+		<!-- Angular -->
+		<script src="bower_components/angular/angular.js"></script>
+		<script src="bower_components/angular-route/angular-route.js"></script>
+
+		<!-- Main App -->
+		<script src="othello-client.js"></script>
+
+		<!-- Controllers -->
+		<script src="controllers/main-controller.js"></script>
+</head>
+<body ng-controller="mainController as mc">
+
+<div ng-include="'views/navbar.html'"></div>
+<div ng-view=""></div>
+
+</body>
+</html>

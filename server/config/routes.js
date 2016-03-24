@@ -10,9 +10,7 @@ module.exports = function (app)
         req.logout();
         res.redirect("/");
     });
-
-    app.get("/", auth.jwt.authenticate, function (req, res) {
+    app.get("/api", auth.jwt.authenticate, function (req, res) {
         res.json({ message: "Success", userId: req.userId });
     });
-    
 };

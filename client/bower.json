@@ -1,0 +1,14 @@
+{
+  "name": "Othello Portobello",
+  "authors": [
+    "David Wolgemuth <davidjwolgemuth@gmail.com>"
+  ],
+  "description": "The game of Othello",
+  "main": "index.html",
+  "moduleType": [],
+  "license": "MIT",
+  "dependencies": {
+    "angular": "^1.5.2",
+    "angular-route": "^1.5.2"
+  }
+}
