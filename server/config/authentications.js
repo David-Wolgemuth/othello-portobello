@@ -19,7 +19,7 @@ function authenticateJWT(req, res, next)
         jwt.verify(token, keys.jwt.secret, function (err, decoded) {
             if (err) {
                 return res.status(401).json({
-                    message: [err, token]
+                    message: err
                 });
             } else {
                 req.userId = decoded.id;
@@ -45,7 +45,7 @@ function issueJWT (req, res)
         var token = jwt.sign(data, keys.jwt.secret, options);
         res.json({
             user: req.user,
-            token: token
+            issuedToken: token
         });
     }  
 }
