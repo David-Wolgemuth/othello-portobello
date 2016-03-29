@@ -10,6 +10,7 @@ function authenticateJWT(req, res, next)
     /*
         Authenticates JSON Web Tokens
     */
+    console.log("Hey");
     var token = req.headers["x-auth-token"];
     if (token) {
         if (token == keys.jwt.testToken) {
@@ -34,6 +35,7 @@ function authenticateJWT(req, res, next)
 }
 function issueJWT (req, res) 
 {
+    console.log("Headers:", req.headers);
     console.log("Issuing JWT to:", req.user);
     if (req.user) {
         var data = {
@@ -56,6 +58,7 @@ function unauthorizedError (err, req, res, next) {
 }
 function facebookLogin(token, refreshToken, profile, done)
 {
+    console.log("here");
     process.nextTick(function () {
         User.findOne({ "facebookId" : profile.id }, function(err, user) {
             if (err) { return done(err); }
@@ -83,6 +86,7 @@ var facebookOptions = {
     callbackURL     : "http://localhost:5000/auth/facebook/callback",
     profileFields   : ["id", "displayName"]
 };
+
 var facebookStrategy = new FacebookStrategy(facebookOptions, facebookLogin);
 passport.use(facebookStrategy);
 
@@ -90,12 +94,25 @@ module.exports = (function ()
 {
     var Authentication = {};
     Authentication.fb = {
-        login: passport.authenticate("facebook", {
-            session: false, scope: [] 
-        }),
-        callback: passport.authenticate("facebook", { 
-            session: false, 
-        }),
+        login: function (req, res, next) {
+            
+            // console.log(req.headers);
+            passport.authenticate("facebook", {
+                session: false, scope: [] 
+            });
+            passport.authenticate("facebook", {
+                session: false, scope: [] 
+            })(req, res, next);
+            res.json(true);
+            // var cors = require("cors");
+            // cors()(req, res, next);
+        },
+        callback: function (req, res, next) {
+            console.log("\n\n\nHere\n\n\n\n");
+            passport.authenticate("facebook", { 
+                session: false, 
+            })(req, res, next);
+        }
     };
     Authentication.jwt = {
         authenticate: authenticateJWT,

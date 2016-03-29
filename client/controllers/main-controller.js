@@ -1,4 +1,5 @@
 othelloModule
+
 .factory("mainFactory", function ($http, $cookies) {
     var factory = {};
     factory.token = "";
@@ -20,11 +21,11 @@ othelloModule
     }
     function facebookLogin(callback) {
         $http({
-            url: "/auth/facebook",
-            method: "GET",
-            withCredentials: true,
-            useXDomain: true,
+            url: "http://localhost:5000/auth/facebook",
+            method: "JSON",
+            withCredentials: false
         }).then(function (res) {
+            console.log("res.data:",res.data);
             var token = res.data.issuedToken;
             setCookie(token);
             callback(Boolean(token));
@@ -33,6 +34,7 @@ othelloModule
     factory.login = function (callback) {
         getToken(function(token) {
             if (token) {
+                console.log("Token:", token);
                 callback(true);
             } else {
                 facebookLogin(function(success) {
@@ -52,16 +54,7 @@ othelloModule
     return factory;
 })
 .controller("mainController", function ($scope, mainFactory) {
-    $scope.handlePopupAuthentication = function (network, account) {
-        $scope.$apply(function () {
-            $scope.applyNetwork(network, account);
-        });
-    };
-    $scope.authNetwork = function authNetwork(network) {
-        var openUrl = "/auth/facebook";
-        window.$windowScope = $scope;
-        window.open(openUrl, "Authenticate Facebook", "width=500, height=500");
-    };
+    
     var mc = this;
     mc.test = "What up Brah";
     mc.loggedIn = false;
