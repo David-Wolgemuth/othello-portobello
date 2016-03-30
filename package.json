@@ -11,14 +11,10 @@
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.15.0",
-    "cors": "^2.7.1",
     "express": "^4.13.4",
-    "express-jwt": "^3.3.0",
     "frisby": "^0.8.5",
     "minimist": "^1.2.0",
     "mongoose": "^4.4.8",
-    "passport-facebook": "^2.1.0",
-    "passport-http-bearer": "^1.0.1",
     "request": "^2.69.0"
   }
 }

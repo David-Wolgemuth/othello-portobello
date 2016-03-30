@@ -13,19 +13,17 @@ class WelcomeViewController: UIViewController, FBSDKLoginButtonDelegate
     override func viewDidLoad()
     {
         super.viewDidLoad()
-        login()
+        displayLoginButton()
     }
-    func login()
+    func displayLoginButton()
     {
-//        if FBSDKAccessToken.currentAccessToken() != nil {
-//            // User Logged In
-//        } else {
-            let loginView = FBSDKLoginButton()
-            self.view.addSubview(loginView)
-            loginView.center = self.view.center
-            loginView.readPermissions = ["public_profile"]
-            loginView.delegate = self
-//        }
+        
+        let loginView = FBSDKLoginButton()
+        self.view.addSubview(loginView)
+        loginView.center = self.view.center
+        loginView.readPermissions = ["public_profile", "user_friends"]
+        loginView.delegate = self
+
     }
     func loginButton(loginButton: FBSDKLoginButton!, didCompleteWithResult result: FBSDKLoginManagerLoginResult!, error: NSError!)
     {
@@ -34,19 +32,31 @@ class WelcomeViewController: UIViewController, FBSDKLoginButtonDelegate
         } else if result.isCancelled {
             // Handle Cancellations
         } else {
-            print(result.token.tokenString)
-            returnUserData()
+            let token = result.token.tokenString
+            loginUser(withToken: token)
         }
     }
-    func returnUserData()
+    func loginUser(withToken token: String)
     {
         let graphRequest = FBSDKGraphRequest(graphPath: "me", parameters: ["fields": "id, name"])
         graphRequest.startWithCompletionHandler({ (connection, result, error) -> Void in
             if let err = error {
                 print("Error: \(err)")
             } else {
-                if let userdata = result as? NSDictionary {
+                if let userdata = result as? [String: String] {
                     print(userdata)
+                    Requests.login(userdata) {
+                        success in
+                        print("Successful? \(success)")
+                        if success {
+                            Requests.getUser {
+                                success, data in
+                                print("Got User Data Back? \(success)")
+                                print("Token: \(Requests.token.tokenString)")
+                                print(data)
+                            }
+                        }
+                    }
                 }
             }
         })
