@@ -12,6 +12,7 @@ class WelcomeViewController: UIViewController, FBSDKLoginButtonDelegate
 {
     override func viewDidAppear(animated: Bool)
     {
+        print("HOST_SITE: \(Requests.host)")
         super.viewDidAppear(animated)
         if FBSDKAccessToken.currentAccessToken() == nil {
             displayLoginButton()

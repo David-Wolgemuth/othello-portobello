@@ -12,7 +12,8 @@ import SwiftyJSON
 
 class Requests
 {
-    static let host = "http://othello-portobello.herokuapp.com"
+    static let HOST_SITE = NSProcessInfo.processInfo().environment["HOST_SITE"]!
+    static let host = HOST_SITE
     static var token = FBSDKAccessToken.currentAccessToken()
     
     static func loginUser(completion: (Bool) -> ())
