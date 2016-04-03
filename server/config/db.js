@@ -1,7 +1,8 @@
 // Mongoose Configuration
 
 var mongoose = require("mongoose");
-mongoose.connect("mongodb://localhost/othello_api");
+var keys = require("./keys.js");
+mongoose.connect("mongodb://" + keys.mongolab.user + ":" + keys.mongolab.password + "@ds015770.mlab.com:15770/othello");
 
 // Require All Files In Models Directory
 var fs = require("fs");
