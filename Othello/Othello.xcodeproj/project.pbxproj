@@ -14,6 +14,10 @@
 		637F452B1CAAF9B100CBCB98 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 637F45291CAAF9B100CBCB98 /* LaunchScreen.storyboard */; };
 		637F45331CAB017100CBCB98 /* Requests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637F45321CAB017100CBCB98 /* Requests.swift */; };
 		638D62D81CAB1B9C00ACDEDD /* FBSDKLoginKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 638D62D71CAB1B9C00ACDEDD /* FBSDKLoginKit.framework */; };
+		63D77B961CAC5F6E00766B16 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63D77B951CAC5F6E00766B16 /* MainViewController.swift */; };
+		63D77B981CAC665500766B16 /* MainTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63D77B971CAC665500766B16 /* MainTableViewController.swift */; };
+		63D77B9E1CAC6E2300766B16 /* Opponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63D77B9D1CAC6E2300766B16 /* Opponent.swift */; };
+		63D77BA51CAD9CF800766B16 /* OpponentInfoTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63D77BA41CAD9CF800766B16 /* OpponentInfoTableViewController.swift */; };
 		63DB0E781CAB13DF00FD5DC1 /* FBSDKCoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 63DB0E771CAB13DF00FD5DC1 /* FBSDKCoreKit.framework */; };
 		DA5D804B647D8F1EC361AA72 /* Pods_Othello.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 161EC8A56BA3F5336DF74879 /* Pods_Othello.framework */; };
 /* End PBXBuildFile section */
@@ -30,6 +34,11 @@
 		637F45321CAB017100CBCB98 /* Requests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Requests.swift; sourceTree = "<group>"; };
 		638D62D61CAB1B3D00ACDEDD /* Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Bridging-Header.h"; sourceTree = "<group>"; };
 		638D62D71CAB1B9C00ACDEDD /* FBSDKLoginKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = FBSDKLoginKit.framework; sourceTree = "<group>"; };
+		63D77B951CAC5F6E00766B16 /* MainViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
+		63D77B971CAC665500766B16 /* MainTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainTableViewController.swift; sourceTree = "<group>"; };
+		63D77B9D1CAC6E2300766B16 /* Opponent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Opponent.swift; sourceTree = "<group>"; };
+		63D77BA31CAC7FAD00766B16 /* MyPlayground.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = MyPlayground.playground; sourceTree = "<group>"; };
+		63D77BA41CAD9CF800766B16 /* OpponentInfoTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpponentInfoTableViewController.swift; sourceTree = "<group>"; };
 		63DB0E771CAB13DF00FD5DC1 /* FBSDKCoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = FBSDKCoreKit.framework; sourceTree = "<group>"; };
 		85E0BE7829A042F4C8EA8559 /* Pods-Othello.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Othello.release.xcconfig"; path = "Pods/Target Support Files/Pods-Othello/Pods-Othello.release.xcconfig"; sourceTree = "<group>"; };
 		8A2CABEA47350B719B958E93 /* Pods-Othello.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Othello.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Othello/Pods-Othello.debug.xcconfig"; sourceTree = "<group>"; };
@@ -79,16 +88,53 @@
 		637F451F1CAAF9B100CBCB98 /* Othello */ = {
 			isa = PBXGroup;
 			children = (
-				637F45201CAAF9B100CBCB98 /* AppDelegate.swift */,
-				637F45221CAAF9B100CBCB98 /* WelcomeViewController.swift */,
-				637F45321CAB017100CBCB98 /* Requests.swift */,
-				638D62D61CAB1B3D00ACDEDD /* Bridging-Header.h */,
-				637F45241CAAF9B100CBCB98 /* Main.storyboard */,
-				637F45271CAAF9B100CBCB98 /* Assets.xcassets */,
-				637F45291CAAF9B100CBCB98 /* LaunchScreen.storyboard */,
-				637F452C1CAAF9B100CBCB98 /* Info.plist */,
+				63D77BA31CAC7FAD00766B16 /* MyPlayground.playground */,
+				63D77BA21CAC783900766B16 /* Config */,
+				63D77BA01CAC781A00766B16 /* Controllers */,
+				63D77B9F1CAC780F00766B16 /* Models */,
+				63D77BA11CAC782600766B16 /* Views */,
 			);
 			path = Othello;
+			sourceTree = "<group>";
+		};
+		63D77B9F1CAC780F00766B16 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				637F45321CAB017100CBCB98 /* Requests.swift */,
+				63D77B9D1CAC6E2300766B16 /* Opponent.swift */,
+			);
+			name = Models;
+			sourceTree = "<group>";
+		};
+		63D77BA01CAC781A00766B16 /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				637F45221CAAF9B100CBCB98 /* WelcomeViewController.swift */,
+				63D77BA41CAD9CF800766B16 /* OpponentInfoTableViewController.swift */,
+				63D77B971CAC665500766B16 /* MainTableViewController.swift */,
+				63D77B951CAC5F6E00766B16 /* MainViewController.swift */,
+			);
+			name = Controllers;
+			sourceTree = "<group>";
+		};
+		63D77BA11CAC782600766B16 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				637F45271CAAF9B100CBCB98 /* Assets.xcassets */,
+				637F45241CAAF9B100CBCB98 /* Main.storyboard */,
+				637F45291CAAF9B100CBCB98 /* LaunchScreen.storyboard */,
+			);
+			name = Views;
+			sourceTree = "<group>";
+		};
+		63D77BA21CAC783900766B16 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				637F45201CAAF9B100CBCB98 /* AppDelegate.swift */,
+				638D62D61CAB1B3D00ACDEDD /* Bridging-Header.h */,
+				637F452C1CAAF9B100CBCB98 /* Info.plist */,
+			);
+			name = Config;
 			sourceTree = "<group>";
 		};
 		9B11BCB741F68470DD2B0D0D /* Frameworks */ = {
@@ -225,7 +271,11 @@
 			files = (
 				637F45331CAB017100CBCB98 /* Requests.swift in Sources */,
 				637F45231CAAF9B100CBCB98 /* WelcomeViewController.swift in Sources */,
+				63D77BA51CAD9CF800766B16 /* OpponentInfoTableViewController.swift in Sources */,
+				63D77B9E1CAC6E2300766B16 /* Opponent.swift in Sources */,
 				637F45211CAAF9B100CBCB98 /* AppDelegate.swift in Sources */,
+				63D77B981CAC665500766B16 /* MainTableViewController.swift in Sources */,
+				63D77B961CAC5F6E00766B16 /* MainViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

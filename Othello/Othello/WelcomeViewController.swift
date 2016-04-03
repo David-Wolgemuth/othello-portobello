@@ -10,20 +10,29 @@ import UIKit
 
 class WelcomeViewController: UIViewController, FBSDKLoginButtonDelegate
 {
-    override func viewDidLoad()
+    override func viewDidAppear(animated: Bool)
     {
-        super.viewDidLoad()
-        displayLoginButton()
+        super.viewDidAppear(animated)
+        if FBSDKAccessToken.currentAccessToken() == nil {
+            displayLoginButton()
+        } else {
+            loginUser()
+        }
+    }
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?)
+    {
+        if (segue.identifier == "MainViewSegue") {
+            let controller = segue.destinationViewController as? MainViewController
+            controller?.welcomeViewController = self
+        }
     }
     func displayLoginButton()
     {
-        
         let loginView = FBSDKLoginButton()
         self.view.addSubview(loginView)
         loginView.center = self.view.center
         loginView.readPermissions = ["public_profile", "user_friends"]
         loginView.delegate = self
-
     }
     func loginButton(loginButton: FBSDKLoginButton!, didCompleteWithResult result: FBSDKLoginManagerLoginResult!, error: NSError!)
     {
@@ -32,34 +41,16 @@ class WelcomeViewController: UIViewController, FBSDKLoginButtonDelegate
         } else if result.isCancelled {
             // Handle Cancellations
         } else {
-            let token = result.token.tokenString
-            loginUser(withToken: token)
+            loginUser()
         }
     }
-    func loginUser(withToken token: String)
+    func loginUser()
     {
-        let graphRequest = FBSDKGraphRequest(graphPath: "me", parameters: ["fields": "id, name"])
-        graphRequest.startWithCompletionHandler({ (connection, result, error) -> Void in
-            if let err = error {
-                print("Error: \(err)")
-            } else {
-                if let userdata = result as? [String: String] {
-                    print(userdata)
-                    Requests.login(userdata) {
-                        success in
-                        print("Successful? \(success)")
-                        if success {
-                            Requests.getUser {
-                                success, data in
-                                print("Got User Data Back? \(success)")
-                                print("Token: \(Requests.token.tokenString)")
-                                print(data)
-                            }
-                        }
-                    }
-                }
+        Requests.loginUser { success in
+            if (success) {
+                self.performSegueWithIdentifier("MainViewSegue", sender: nil)
             }
-        })
+        }
     }
     func loginButtonDidLogOut(loginButton: FBSDKLoginButton!)
     {
