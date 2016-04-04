@@ -1,4 +1,4 @@
-
+*.xcuserdata
 node_modules
 bower_components
 keys.json

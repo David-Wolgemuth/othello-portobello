@@ -12,8 +12,12 @@ import SwiftyJSON
 
 class Requests
 {
+<<<<<<< HEAD
     static let HOST_SITE = NSProcessInfo.processInfo().environment["HOST_SITE"]!
     static let host = HOST_SITE
+=======
+    static let host = "http://localhost:5000"
+>>>>>>> master
     static var token = FBSDKAccessToken.currentAccessToken()
     
     static func loginUser(completion: (Bool) -> ())
