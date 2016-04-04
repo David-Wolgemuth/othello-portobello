@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3D34E8341CB1EA350087671A /* UserInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D34E8331CB1EA350087671A /* UserInfoViewController.swift */; };
 		637F45211CAAF9B100CBCB98 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637F45201CAAF9B100CBCB98 /* AppDelegate.swift */; };
 		637F45231CAAF9B100CBCB98 /* WelcomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637F45221CAAF9B100CBCB98 /* WelcomeViewController.swift */; };
 		637F45261CAAF9B100CBCB98 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 637F45241CAAF9B100CBCB98 /* Main.storyboard */; };
@@ -24,6 +25,7 @@
 
 /* Begin PBXFileReference section */
 		161EC8A56BA3F5336DF74879 /* Pods_Othello.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Othello.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		3D34E8331CB1EA350087671A /* UserInfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserInfoViewController.swift; sourceTree = "<group>"; };
 		637F451D1CAAF9B100CBCB98 /* Othello.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Othello.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		637F45201CAAF9B100CBCB98 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		637F45221CAAF9B100CBCB98 /* WelcomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeViewController.swift; sourceTree = "<group>"; };
@@ -113,6 +115,7 @@
 				63D77BA41CAD9CF800766B16 /* OpponentInfoTableViewController.swift */,
 				63D77B971CAC665500766B16 /* MainTableViewController.swift */,
 				63D77B951CAC5F6E00766B16 /* MainViewController.swift */,
+				3D34E8331CB1EA350087671A /* UserInfoViewController.swift */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -270,6 +273,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				637F45331CAB017100CBCB98 /* Requests.swift in Sources */,
+				3D34E8341CB1EA350087671A /* UserInfoViewController.swift in Sources */,
 				637F45231CAAF9B100CBCB98 /* WelcomeViewController.swift in Sources */,
 				63D77BA51CAD9CF800766B16 /* OpponentInfoTableViewController.swift in Sources */,
 				63D77B9E1CAC6E2300766B16 /* Opponent.swift in Sources */,
