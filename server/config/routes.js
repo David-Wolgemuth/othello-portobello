@@ -7,11 +7,7 @@ var matches = require("../controllers/matches.js");
 
 module.exports = function (app)
 {
-    app.post("/login", auth.facebook, users.create);
-    /*
-        + { name: facebook_name }
-    */
-    app.get("/users/:id", auth.facebook, users.show);
+    app.get("/users/me", auth.facebook, users.show);
     /*
         -> userdata: { facebookId: "", name: "" }
         + ?history="userId"
@@ -21,14 +17,19 @@ module.exports = function (app)
     /*
         -> users: [{ facebookId: "", name: "" }]
     */
-    app.get("/matches/current", auth.facebook, matches.current);
+    app.get("/matches", auth.facebook, matches.current);
     /*
-        + { opponentFacebookId: "" }
+        + ?opponentFBID=""
+        + ?current=true
         -> { match: Match }
+    */
+    app.post("/users/create", auth.facebook, users.create);
+    /*
+        + { name: facebook_name }
     */
     app.post("/matches", auth.facebook, matches.create);
     /*
-        + { opponentFacebookId: "" }
+        + { opponentFBID: "" }
         -> { match: Match }
     */
     app.delete("/matches/:id", auth.facebook, matches.forfeit);

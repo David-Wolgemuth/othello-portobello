@@ -62,12 +62,12 @@ function UsersConstructor () {
         if (req.query.history) {
             return Users.history(req, res);
         }
-        if (req.facebookId != req.params.id) {
-            return res.status(401).json({ message: "Unauthorized Access" });
-        }
         User.findByFBID(req.facebookId, "name facebookId", function (err, user) {
             if (err) { reportUnknownError(err, res); }
-            return res.json({ message: "User Data", userdata: user });
+            if (!user) {
+                return res.status(404).json({ message: "User Not Found In Database (Create User if First Time Logged In)" });
+            }
+            return res.json({ message: "User Found", userdata: user });
         });
     };
     self.create = function (req, res)

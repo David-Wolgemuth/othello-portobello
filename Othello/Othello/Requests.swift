@@ -28,8 +28,8 @@ class Requests
                     print(userdata)
                     Requests.login(userdata) {
                         success in
+                        print("Token: \"\(self.token.tokenString)\"\n")
                         print("Successful? \(success)")
-                        print("Token: \(self.token.tokenString)")
                         if success {
                             Requests.getUser {
                                 success, data in
