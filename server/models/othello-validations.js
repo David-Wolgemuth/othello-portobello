@@ -2,8 +2,7 @@
     Validations
         .checkBoardIsValid
         .checkMoveIsValid
-        checkPlayerIsValid
-
+        .checkPlayerIsValid
 */
 
 var TILES = 8;

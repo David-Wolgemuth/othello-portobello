@@ -17,7 +17,6 @@
         .checkGameOver = function (board)  
             ->  0 (Game Not Over), 1 / 2 (Player Won), -1 (Tie)
 */
-
 var validations = require("./othello-validations");
 validate = function (toValidate, args)
 {
