@@ -12,7 +12,7 @@ import SwiftyJSON
 
 class Requests
 {
-    static let host = "http://david.local:5000"
+    static let host = "http://localhost:5000"
     static var token = FBSDKAccessToken.currentAccessToken()
     
     static func loginUser(completion: (Bool) -> ())
