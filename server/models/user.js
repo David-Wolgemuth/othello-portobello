@@ -1,13 +1,11 @@
 /*****
     User Mongoose Model
-        .findByFBID(fbid, _, _)  // Use same as findById
-        .findTwoUsersByFBID(idA, idB, function (err, user, opponent){})
 */
 
 var mongoose = require("mongoose");
 
 var UserSchema = new mongoose.Schema({
-    facebookId: {
+    fbid: {
         type: String,
         required: true
     },
@@ -27,24 +25,69 @@ UserSchema.statics.findByFBID = function (id, a, b)
     (operates same as findById)
 */
 {
-    this.findOne({ facebookId: id }, a, b);
+    this.findOne({ fbid: id }, a, b);
 };
-UserSchema.statics.findTwoUsersByFBID = function (pidA, pidB, callback)
+UserSchema.statics.findTwoUsersByFBID = function (fbidA, fbidB, callback)
 /*
     callback(err, user, opponent)
 */
 {
     var User = this;
-    if (!callback) { return; }
-    User.findOne({ facebookId: pidA }, function (err, user) {
+    User.findOne({ fbid: fbidA }, function (err, user) {
         if (err) {
             return callback(err, null, null);
         }
-        User.findOne({ facebookId: pidB }, function (err, opponent){
+        User.findOne({ fbid: fbidB }, function (err, opponent){
             if (err) {
                 return callback(err, null, null);
             }
             callback(null, user, opponent);
+        });
+    });
+};
+UserSchema.statics.winsLosses = function (pid, callback)
+{
+    var Match = mongoose.model("Match");
+    Match.findAllContainingPlayer(pid, function(err, matches) {
+        if (err) { return callback(err); }
+        var stats = {
+            wins: 0,
+            losses: 0
+        };
+        if (!matches) {
+            return callback(null, stats);
+        }
+        matches.forEach(function (match) {
+            if (match.winner) {
+                if (match.winner == pid) {
+                    stats.wins++;
+                } else {
+                    stats.losses++;
+                }
+            }
+        });
+    });
+};
+UserSchema.statics.winsLossesAgainstPlayer = function (pidA, pidB, callback)
+{
+    var Match = mongoose.model("Match");
+    Match.findAllContainingPlayers(pidA, pidB, function (err, matches) {
+        if (err) { return callback(err); }
+        var stats = {
+            wins: 0,
+            losses: 0
+        };
+        if (!matches) {
+            return callback(null, stats);
+        }
+        matches.forEach(function (match) {
+            if (match.winner) {
+                if (match.winner == pid) {
+                    stats.wins++;
+                } else {
+                    stats.losses++;
+                }
+            }
         });
     });
 };

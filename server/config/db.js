@@ -1,4 +1,6 @@
-// Mongoose Configuration
+/******
+    Mongoose Configuration
+*/
 
 var mongoose = require("mongoose");
 var keys = require("./keys.js");

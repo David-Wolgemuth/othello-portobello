@@ -1,10 +1,5 @@
 /*****
     Match Mongoose Model
-        .findAllContainingPlayers(idA, idB, function (err, matches) {})
-        .findCurrentContainingPlayers(idA, idB, function (err, match) {})
-        .findAllContainingPlayersFBID(fbidA, fbidB, function (err, matches) {})
-        .findCurrentContainingPlayersFBID(fbidA, fbidB, function (err, match) {})
-        .forfeitMatchWithFBID(matchId, loserFBID, function (err) {})
 */
 var mongoose = require("mongoose");
 
@@ -21,6 +16,16 @@ var MatchSchema = new mongoose.Schema({
 }, {
     timestamps: true
 });
+MatchSchema.statics.findAllContainingPlayer = function (pid, callback)
+{
+    var User = mongoose.model("User");
+    User.findById(pid, function (err, user) {
+        if (err) { callback(err); }
+        User.populate(user, "matches", function (err, user) {
+            callback(err, user.matches);
+        });
+    });
+};
 MatchSchema.statics.findAllContainingPlayers = function (pidA, pidB, callback)
 /*
     callback(err, matches)

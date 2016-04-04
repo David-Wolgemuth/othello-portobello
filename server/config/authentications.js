@@ -24,8 +24,19 @@ module.exports = (function ()
                     console.log("Could not authenticate", body.error);
                     return res.status(401).json({ "message": body.error });
                 } else {
-                    req.facebookId = body.id;
-                    next();
+                    User.findByFBID(body.id, function (err, user) {
+                        if (err) {
+                            var message = "Unknown Error Authenticating User";
+                            console.log(message);
+                            return res.status(500).json({ message: message });
+                        }
+                        if (user) {
+                            req.user = user;
+                        } else {
+                            req.user = { fbid: body.id }
+                        }
+                        next();
+                    });
                 }
             });
         }

@@ -1,6 +1,7 @@
 /******
     Routes for Othello Api
 */
+
 var auth = require("./authentications.js");
 var users = require("../controllers/users.js");
 var matches = require("../controllers/matches.js");
@@ -10,8 +11,8 @@ module.exports = function (app)
     app.get("/users/me", auth.facebook, users.show);
     /*
         -> userdata: { facebookId: "", name: "" }
-        + ?history="userId"
-        -> history: { totals: { wins: Number, losses: Number }, versus: ... }
+        + ?stats=opponentId / ?stats=me
+        -> stats: { wins: 12, losses: 12 }, versus: { wins: 2, losses: 2 }
     */
     app.get("/users", auth.facebook, users.index);
     /*
@@ -19,7 +20,7 @@ module.exports = function (app)
     */
     app.get("/matches", auth.facebook, matches.current);
     /*
-        + ?opponentFBID=""
+        + ?opponentId=""
         + ?current=true
         -> { match: Match }
     */
@@ -29,7 +30,7 @@ module.exports = function (app)
     */
     app.post("/matches", auth.facebook, matches.create);
     /*
-        + { opponentFBID: "" }
+        + { opponentId: "" }
         -> { match: Match }
     */
     app.delete("/matches/:id", auth.facebook, matches.forfeit);
@@ -38,6 +39,10 @@ module.exports = function (app)
     */
     app.get("*", function (req, res) {
         var url = req.protocol + '://' + req.get('host') + req.originalUrl;
-        res.status(404).json({ message: "`" + url + "`" + " Not Valid Path." }); 
+        res.status(404).json({ message: "GET `" + url + "`" + " Not Valid Path." }); 
+    });
+    app.post("*", function (req, res) {
+        var url = req.protocol + '://' + req.get('host') + req.originalUrl;
+        res.status(404).json({ message: "POST `" + url + "`" + " Not Valid Path." }); 
     });
 };
