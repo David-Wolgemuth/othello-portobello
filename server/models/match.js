@@ -2,17 +2,30 @@
     Match Mongoose Model
 */
 var mongoose = require("mongoose");
+var othello = require("./othello.js");
 
 var MatchSchema = new mongoose.Schema({
     winner: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User"
+        type: Number,
+        min: -1,  // `-1` -> tie game
+        max: 2,
+        default: 0  // `0` -> no winner (game still in play)
+    },
+    turn: {
+        type: Number,
+        min: 0,  // `0` -> game over 
+        max: 2,
+        default: 1
     },
     board: [],
     players: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
-    }]
+    }],
+    ai: {
+        type: String,
+        enum: ["easy_ai", "normal_ai"]
+    }
 }, {
     timestamps: true
 });
@@ -22,6 +35,7 @@ MatchSchema.statics.findAllContainingPlayer = function (pid, callback)
     User.findById(pid, function (err, user) {
         if (err) { callback(err); }
         User.populate(user, "matches", function (err, user) {
+            console.log(user);
             callback(err, user.matches);
         });
     });
@@ -31,12 +45,21 @@ MatchSchema.statics.findAllContainingPlayers = function (pidA, pidB, callback)
     callback(err, matches)
 */
 {
-    this.find({
-        $or: [
-            { players: [pidA, pidB] }, 
-            { players: [pidB, pidA] }
-        ]
-    }, callback);
+    if (pidB == "easy_ai" || pidB == "normal_ai") {
+        this.find({
+            $and: [
+                { players: [pidA] },
+                { ai: pidB }
+            ]
+        }, callback);
+    } else {
+        this.find({
+            $or: [
+                { players: [pidA, pidB] }, 
+                { players: [pidB, pidA] }
+            ]
+        }, callback);
+    }
 };
 MatchSchema.statics.findCurrentContainingPlayers = function (pidA, pidB, callback)
 /*
@@ -49,9 +72,10 @@ MatchSchema.statics.findCurrentContainingPlayers = function (pidA, pidB, callbac
         }
         for (var i = 0; i < matches.length; i++) {
             if (!matches[i].winner) {
-                callback(null, matches[i]);
+                return callback(null, matches[i]);
             }
         }
+        return callback(null, null);
     });
 };
 MatchSchema.statics.findAllContainingPlayersFBID = function (fbidA, fbidB, callback)
@@ -82,6 +106,31 @@ MatchSchema.statics.findCurrentContainingPlayersFBID = function (fbidA, fbidB, c
         self.findCurrentContainingPlayers(userA, userB, callback);
     });
 };
+MatchSchema.statics.forfeitMatch = function (matchId, loserId, callback)
+/*
+    callback(err)
+*/
+{
+    var self = this;
+    self.findById(matchId, function (err, match) {
+        if (err) { return callback(err); }
+        if (!match) { return callback("No Match Found Containing Provided Id"); };
+        if (match.winner) {
+            return callback("Match Is Already Finished");
+        }
+        if (match.players[0].toString() == loserId) {
+            match.winner = 2;
+        } else if (match.players[1].toString() == loserId) {
+            match.winner = 1;
+        } else {
+            return callback("User `" + loserId + "` Not Found In Match `" + match._id + "`");
+        }
+        match.save(function (err) {
+            if (err) { return callback(err); }
+            callback();
+        });
+    });
+};
 MatchSchema.statics.forfeitMatchWithFBID = function (matchId, loserFBID, callback)
 /*
     callback(err)
@@ -92,21 +141,7 @@ MatchSchema.statics.forfeitMatchWithFBID = function (matchId, loserFBID, callbac
     User.findByFBID(loserFBID, function (err, loser) {
         if (err) { return callback(err); }
         if (!loser) { return callback("User With Provided FaceBook Id Not Found."); }
-        self.findOneById(matchId, function (err, match) {
-            if (err) { return callback(false, err); }
-            if (!match) { return callback("No Match Found Containing Provided Id"); }
-            if (match.players[0] == loser._id) {
-                match.winner = match.players[1];
-            } else if (match.players[1] == loser._id) {
-                match.winner = match.players[0];
-            } else {
-                return callback("Unknown Internal Error");
-            }
-            match.save(function (err) {
-                if (err) { return callback(err); }
-                callback();
-            });
-        });
+        self.forfeitMatch(matchId, loser._id, callback);
     });
 };
 MatchSchema.pre("save", function (next) {

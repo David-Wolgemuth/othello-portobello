@@ -18,7 +18,7 @@ module.exports = function (app)
     /*
         -> users: [{ facebookId: "", name: "" }]
     */
-    app.get("/matches", auth.facebook, matches.current);
+    app.get("/matches", auth.facebook, matches.index);
     /*
         + ?opponentId=""
         + ?current=true
@@ -37,6 +37,10 @@ module.exports = function (app)
     /*
         -> { success: Boolean }
     */
+    app.get("/html", function (req, res) {
+        var keys = require("./keys.js");
+        res.render("index", { appId: keys.facebook.clientID });
+    });
     app.get("*", function (req, res) {
         var url = req.protocol + '://' + req.get('host') + req.originalUrl;
         res.status(404).json({ message: "GET `" + url + "`" + " Not Valid Path." }); 

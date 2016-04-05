@@ -19,10 +19,10 @@ function MatchesConstructor ()
             }
             return self.againstOpponent(req, res);
         }
-        User.findById(req.user._id, function (err, user) {
+        Match.findAllContainingPlayer(req.user._id, function (err, matches) {
             if (err) { return reportUnknownError(err, res); }
             res.json({ message: "All Matches", matches: matches});
-        });   
+        });
     };
     self.againstOpponent = function (req, res)
     {
@@ -42,17 +42,33 @@ function MatchesConstructor ()
     };
     self.create = function (req, res)
     {
-        Match.findCurrentContainingPlayersID(req.user._id, req.body.opponentId, function (err, existing) {
+        if (!req.body.opponentId) {
+            return res.status(400).json({ message: "Must Contain `opponentId` in Request Body" });
+        }
+        Match.findCurrentContainingPlayers(req.user._id, req.body.opponentId, function (err, existing) {
             if (err) { return reportUnknownError(err, res); }
             if (existing) {
-                return res.json({ message: "Found Existing Match, New Match Not Created.", match: match });
+                return res.json({ message: "Found Existing Match, New Match Not Created.", match: existing });
             }
-            var match = new Match({
-                players: [user._id, opponent._id]
-            });
+            var match;
+            if (req.body.opponentId == "easy_ai" || req.body.opponentId == "normal_ai") {
+                console.log("HERE");
+                match = new Match({
+                    players : [req.user._id],
+                    ai : req.body.opponentId,
+                });
+            } else {
+                console.log("THERE");
+                match = new Match({
+                    players: [req.user._id, req.body.opponentId]
+                });
+            }
             match.save(function (err) {
                 if (err) { return reportUnknownError(err, res); }
-                return res.json({ message: "Successfully Created Match", match: match });
+                User.pushNewMatchToUsers(match.players[0], match.players[1], match._id, function (err) {
+                    if (err) { return reportUnknownError(err, res); }
+                    res.json({ message: "Successfully Created Match", match: match });
+                });
             });
         });
     };

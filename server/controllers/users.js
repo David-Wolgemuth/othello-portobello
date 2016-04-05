@@ -37,7 +37,7 @@ function UsersConstructor () {
     self.show = function (req, res) 
     {
         if (req.query.stats) {
-            return Users.stats(req, res);
+            return self.stats(req, res);
         }
         User.findById(req.user._id, "name fbid", function (err, user) {
             if (err) { return reportUnknownError(err, res); }

@@ -45,7 +45,43 @@ UserSchema.statics.findTwoUsersByFBID = function (fbidA, fbidB, callback)
         });
     });
 };
+UserSchema.statics.pushNewMatch = function (pid, matchId, callback)
+/*
+    callback(err)
+*/
+{
+    var User = this;
+    User.findByIdAndUpdate(
+        pid,
+        { $push: { "matches": matchId }},
+        { safe: true, upsert: true, new: true },
+        function (err, player) {
+            if (err) { return callback(err); }
+            callback();
+        }
+    );
+};
+UserSchema.statics.pushNewMatchToUsers = function (pidA, pidB, matchId, callback)
+/*
+    callback(err)
+*/
+{
+    var User = this;
+    if (!pidA) {
+        return callback();
+    }
+    User.pushNewMatch(pidA, matchId, function (err) {
+        if (err) { return callback(err); }
+        if (!pidB) {
+            return callback();
+        }
+        User.pushNewMatch(pidB, matchId, callback);
+    });
+};
 UserSchema.statics.winsLosses = function (pid, callback)
+/*
+    callback(err, stats)
+*/
 {
     var Match = mongoose.model("Match");
     Match.findAllContainingPlayer(pid, function(err, matches) {
@@ -69,6 +105,9 @@ UserSchema.statics.winsLosses = function (pid, callback)
     });
 };
 UserSchema.statics.winsLossesAgainstPlayer = function (pidA, pidB, callback)
+/*
+    callback(err, stats)
+*/
 {
     var Match = mongoose.model("Match");
     Match.findAllContainingPlayers(pidA, pidB, function (err, matches) {

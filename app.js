@@ -12,6 +12,9 @@ var app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+app.set("view engine", "ejs");
+app.set("views", __dirname + "/server/views");
+
 require("./server/config/db.js");
 require("./server/config/routes.js")(app);
 
