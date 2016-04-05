@@ -22,8 +22,8 @@ class OpponentInfoTableViewController: UITableViewController
     @IBOutlet weak var firstNameLabel: UILabel!
     @IBOutlet weak var middleNameLabel: UILabel!
     @IBOutlet weak var lastNameLabel: UILabel!
-    @IBOutlet weak var playerOpponentHistoryLabel: UILabel!
-    @IBOutlet weak var opponentHistoryLabel: UILabel!
+    @IBOutlet weak var playerOpponentStatsLabel: UILabel!
+    @IBOutlet weak var opponentStatsLabel: UILabel!
     override func viewDidAppear(animated: Bool)
     {
         super.viewDidAppear(animated)
@@ -49,15 +49,18 @@ class OpponentInfoTableViewController: UITableViewController
     }
     func getHistory()
     {
-        Requests.getOpponentHistory(opponent.id) {
-            success, history in
-            if success {
-                let total = "\(history["totals"]["wins"]) : \(history["totals"]["losses"])"
-                self.opponentHistoryLabel.text = total
-                let versus = "\(history["versus"]["wins"]) : \(history["versus"]["losses"])"
-                self.playerOpponentHistoryLabel.text = versus
+        Requests.getOpponentStats(opponent.id, success: { (stats) in
+            if stats["totals"] != nil {
+                let total = "\(stats["totals"]!["wins"]) : \(stats["totals"]!["losses"]))"
+                self.opponentStatsLabel.text = total
             }
-        }
+            if stats["versus"] != nil {
+                let versus = "\(stats["versus"]!["wins"]) : \(stats["versus"]!["losses"]))"
+                self.playerOpponentStatsLabel.text = versus
+            }
+            }, failure: { (message, code) -> ()? in
+                print("Unable to get Opponent Stats")
+        })
     }
     func setProfileImage()
     {

@@ -1,9 +1,5 @@
 /*****
-    Validations
-        .checkBoardIsValid
-        .checkMoveIsValid
-        checkPlayerIsValid
-
+    Othello Game Validations
 */
 
 var TILES = 8;

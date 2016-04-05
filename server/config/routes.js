@@ -1,26 +1,48 @@
+/******
+    Routes for Othello Api
+*/
+
 var auth = require("./authentications.js");
 var users = require("../controllers/users.js");
 var matches = require("../controllers/matches.js");
 
 module.exports = function (app)
 {
-    app.post("/login", auth.facebook, users.create);
+    app.get("/users/me", auth.facebook, users.show);
     /*
-        + x-auth-token: facebook_token
-        + body.name: facebook_name
-        -> message: "Status Of Login"
-    */
-    app.get("/users/:id", auth.facebook, users.show);
-    /*
-        + x-auth-token: facebook_token
-        -> userdata: { facebookId: "", name: "" }
-        + ?history="userId"
-        -> history: { totals: { wins: Number, losses: Number }, versus: ... }
+        -> user: { fbid: "", name: "" }
+        + ?stats=opponentId / ?stats=me
+        -> stats: { total: { wins: 12, losses: 12 }, versus: { wins: 2, losses: 2 } }
     */
     app.get("/users", auth.facebook, users.index);
     /*
-        + x-auth-token: facebook_token
         -> users: [{ facebookId: "", name: "" }]
     */
+    app.get("/matches", auth.facebook, matches.current);
+    /*
+        + ?opponentId=""
+        + ?current=true
+        -> { match: Match }
+    */
+    app.post("/users", auth.facebook, users.create);
+    /*
+        + { name: facebook_name }
+    */
     app.post("/matches", auth.facebook, matches.create);
+    /*
+        + { opponentId: "" }
+        -> { match: Match }
+    */
+    app.delete("/matches/:id", auth.facebook, matches.forfeit);
+    /*
+        -> { success: Boolean }
+    */
+    app.get("*", function (req, res) {
+        var url = req.protocol + '://' + req.get('host') + req.originalUrl;
+        res.status(404).json({ message: "GET `" + url + "`" + " Not Valid Path." }); 
+    });
+    app.post("*", function (req, res) {
+        var url = req.protocol + '://' + req.get('host') + req.originalUrl;
+        res.status(404).json({ message: "POST `" + url + "`" + " Not Valid Path." }); 
+    });
 };

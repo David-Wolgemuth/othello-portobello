@@ -11,85 +11,59 @@ function UsersConstructor () {
     var self = this;
     self.index = function (req, res)
     {
-        User.find({}, "facebookId name", function (err, users) {
-            if (err) { reportUnknownError(err, res); }
-            return res.json({ message: "All Users", users: users });
+        User.find({}, "fbid name", function (err, users) {
+            if (err) { return reportUnknownError(err, res); }
+            res.json({ message: "All Users", users: users });
         });
     };
-    self.history = function (req, res)
+    self.stats = function (req, res)
     {
-        var user;
-        var history = {
-            totals: {
-                wins: 0,
-                losses: 0
-            }
-        };
-        if (req.query.history == "totals") {
-            user = null;
-        } else if (req.query.history != req.facebookId) {
-            return res.status(401).json({ message: "Unauthorized Access" });
-        } else {
-            history.versus = {
-                wins: 0,
-                losses: 0
-            };
-        }
-        User.findByFBID(req.facebookId, function (err, opponent) {
-            if (err) { reportUnknownError(err, res); }
-            if (!opponent) {
-                return res.status(404).json({ message: "Opponent Not Found"});
-            }
-            opponent.matches.forEach(function (match) {
-                if (!match.winner) {
-                    return;
-                } if (match.winner == opponent.facebookId) {
-                    history.totals.wins++;
-                    if (match.players.indexOf(user) >= 0) {
-                        history.versus.wins++;
-                    }
-                } else {
-                    history.totals.losses++;
-                    if (match.players.indexOf(user) >= 0) {
-                        history.versus.losses++;
-                    }
-                }
+        var opponent = req.query.stats;
+        if (opponent == "me") {
+            User.winsLosses(req.user._id, function (err, stats) {
+                if (err) { return reportUnknownError(err, res); }
+                res.json({ message: "User Stats", stats: stats });
             });
-        });
+        } else {
+            User.winsLosses(opp, function (err, stats) {
+                if (err) { return reportUnknownError(err, res); }
+                User.winsLossesAgainstPlayer(req.user._id, opponent, function (err, versus) {
+                    if (err) { return reportUnknownError(err, res); }
+                    res.json({ message: "Stats Against Opponent \"" + opponent + "\"", stats: stats, versus: versus });
+                });
+            });
+        }
     };
     self.show = function (req, res) 
     {
-        if (req.query.history) {
-            return Users.history(req, res);
+        if (req.query.stats) {
+            return Users.stats(req, res);
         }
-        if (req.facebookId != req.params.id) {
-            return res.status(401).json({ message: "Unauthorized Access" });
-        }
-        User.findByFBID(req.facebookId, "name facebookId", function (err, user) {
-            if (err) { reportUnknownError(err, res); }
-            return res.json({ message: "User Data", userdata: user });
+        User.findById(req.user._id, "name fbid", function (err, user) {
+            if (err) { return reportUnknownError(err, res); }
+            if (!user) {
+                return res.status(404).json({ message: "User Not Found In Database (Create User if First Time Logged In)" });
+            }
+            return res.json({ message: "User Found", user: user });
         });
     };
     self.create = function (req, res)
     {
-        if (!req.facebookId || !req.body.name || req.facebookId != req.body.id) {
-            return res.status(400).json({ message: "Error Logging In/Creating User.  Must include token in header, name and facebookId in body." });
+        if (!req.user.fbid || !req.body.name) {
+            return res.status(400).json({ message: "Error Creating User.  Must include token in header, name in body." });
         }
-        User.findOneAndUpdate(
-            { facebookId: req.body.id },
-            { name: req.body.name },
-            { upsert: true },
-            function (err, user)
-            {
-                if (err) {
-                    reportUnknownError(err, res);
-                } else if (!user) {
-                    return res.json({ message: "User Created" });
-                } else {
-                    return res.json({ message: "\"" + user.name + "\" Succesfully Logged In" });
-                }
-            }
-        );
+        if (req.user._id) {
+            return res.status(400).json({ message: "User Already Exists."});
+        }
+        var user = new User({
+            fbid: req.user.fbid,
+            name: req.body.name
+        });
+        user.save(function (err) {
+            if (err) { return reportUnknownError(err, res); }
+            res.json({ message: "Successfully Created User", user: user });
+        });
     };
 }
+
 module.exports = new UsersConstructor();

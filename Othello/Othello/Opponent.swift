@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import SwiftyJSON
 
 enum OpponentType
 {
@@ -23,16 +24,18 @@ enum ImageSize: String
 class Opponent
 {
     let id: String
+    let fbid: String
     let name: String
-    let type: OpponentType
+    var type: OpponentType
     var names: (first: String?, middle: String?, last: String?)
     
-    static let easyAI = Opponent(id: "easy_ai", name: "AI (easy)", type: .AI)
-    static let normalAI = Opponent(id: "normal_ai", name: "AI (normal)", type: .AI)
+    static let easyAI = Opponent(id: "easy_ai", fbid: "", name: "AI (easy)", type: .AI)
+    static let normalAI = Opponent(id: "normal_ai", fbid: "", name: "AI (normal)", type: .AI)
     
-    init(id: String, name: String, type: OpponentType)
+    init(id: String, fbid: String, name: String, type: OpponentType)
     {
         self.id = id
+        self.fbid = fbid
         self.name = name
         self.type = type
         splitName(name)
@@ -59,6 +62,52 @@ class Opponent
         if type == .AI {
             return "\(id).png"
         }
-        return "https://graph.facebook.com/\(id)/picture?type=\(size.rawValue)"
+        return "https://graph.facebook.com/\(fbid)/picture?type=\(size.rawValue)"
     }
+    static func getAllUsersAsOpponent(success success: (opponents: [Opponent]) -> (), failure: (String, Int) -> ()?)
+    {
+        func extract(users: [JSON])
+        {
+            var opponents = [Opponent]()
+            for user in users {
+                let name = user["name"].string
+                let id = user["_id"].string
+                let fbid = user["fbid"].string
+                if name == nil || id == nil || fbid == nil {
+                    continue
+                }
+                if fbid == FBSDKAccessToken.currentAccessToken().userID {
+                    continue
+                }
+                let opponent = Opponent(id: id!, fbid: fbid!, name: name!, type: .NonFriend)
+                opponents.append(opponent)
+            }
+            success(opponents: opponents)
+        }
+        Requests.getAllUsers(success: extract, failure: failure)
+    }
+    static func getAllOpponents(success success: (opponents: [Opponent]) -> (), failure: (String, Int) -> ()?)
+    {
+        func getFriends(opps: [Opponent])
+        {
+            var opponents = opps
+            opponents.append(self.easyAI)
+            opponents.append(self.normalAI)
+            func setFriends(friends: [JSON])
+            {
+                for opponent in opponents {
+                    for friend in friends {
+                        if opponent.fbid == friend["id"].string {
+                            opponent.type = .Friend
+                            break
+                        }
+                    }
+                }
+                success(opponents: opponents)
+            }
+            Requests.getAllFriends(success: setFriends, failure: failure)
+        }
+        getAllUsersAsOpponent(success: getFriends, failure: failure)
+    }
+    
 }

@@ -1,23 +1,6 @@
 /*****
-    Othello
-        .makeEmptyBoard = function ()
-            ->  [[0, 0, ...],  ...]
-        .tilesFlippedOnMove = function (board, move)
-            ->  [{ x: Int, y: Int }]
-        .getAllValidMoves = function (board, player)
-            ->  [{ x: Int, y: Int, flipped: Int, player: Int }]
-        .getRandomMove = function (board, player)
-            ->  { x: Int, y: Int, flipped: Int, player: Int }
-        .getMoveCornerOrMostFlipped = function (board, player)
-            ->  { x: Int, y: Int, flipped: Int, player: Int }
-        .makeMove = function (board, move, player)
-            ->  Bool
-        .getCurrentScore = function (board)
-            ->  [Int, Int, Int] (Not Played, Player 1, Player 2)
-        .checkGameOver = function (board)  
-            ->  0 (Game Not Over), 1 / 2 (Player Won), -1 (Tie)
+    Othello Game
 */
-
 var validations = require("./othello-validations");
 validate = function (toValidate, args)
 {
