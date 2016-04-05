@@ -10,9 +10,9 @@ module.exports = function (app)
 {
     app.get("/users/me", auth.facebook, users.show);
     /*
-        -> userdata: { facebookId: "", name: "" }
+        -> user: { fbid: "", name: "" }
         + ?stats=opponentId / ?stats=me
-        -> stats: { wins: 12, losses: 12 }, versus: { wins: 2, losses: 2 }
+        -> stats: { total: { wins: 12, losses: 12 }, versus: { wins: 2, losses: 2 } }
     */
     app.get("/users", auth.facebook, users.index);
     /*
@@ -24,7 +24,7 @@ module.exports = function (app)
         + ?current=true
         -> { match: Match }
     */
-    app.post("/users/create", auth.facebook, users.create);
+    app.post("/users", auth.facebook, users.create);
     /*
         + { name: facebook_name }
     */

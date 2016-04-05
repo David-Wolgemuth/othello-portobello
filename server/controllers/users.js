@@ -44,7 +44,7 @@ function UsersConstructor () {
             if (!user) {
                 return res.status(404).json({ message: "User Not Found In Database (Create User if First Time Logged In)" });
             }
-            return res.json({ message: "User Found", userdata: user });
+            return res.json({ message: "User Found", user: user });
         });
     };
     self.create = function (req, res)
