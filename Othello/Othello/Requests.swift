@@ -25,7 +25,7 @@ class Requests
         }
         return nil
     }
-    static func standardRequest(method: Alamofire.Method = .GET, url: String, params: [String: String] = [:], success: (JSON) -> (), failure: (message: String, code: Int) -> ()?)
+    static func standardRequest(method: Alamofire.Method, url: String, params: [String: String]?, success: (JSON) -> (), failure: (message: String, code: Int) -> ()?)
     {
         if let headers = getDefaultHeaders() {
             Alamofire
@@ -63,12 +63,7 @@ class Requests
             failure(message: message, code: 0)
         }
     }
-    static func checkUserExistsInServer(success: (JSON) -> (), failure: (String, Int) -> ()?)
-    {
-        let url = "\(host)/users/me"
-        standardRequest(url: url, success: success, failure: failure)
-    }
-    static func getUserFromFB(success: (user: [String:JSON]) -> (), failure: (String, Int) -> ()?)
+    static func getUserFromFB(success success: (user: [String:JSON]) -> (), failure: (String, Int) -> ()?)
     {
         let graphRequest = FBSDKGraphRequest(graphPath: "me", parameters: ["fields": "id, name"])
         graphRequest.startWithCompletionHandler { connection, result, error in
@@ -78,7 +73,7 @@ class Requests
                 failure(message, 0)
             } else {
                 if let user = result as? [String:String] {
-                    createUserIfNotExists(user, success: success, failure: failure)
+                    self.createUserIfNotExists(user, success: success, failure: failure)
                 } else {
                     let message = "Could Not Extract User Object From Facebook"
                     print(message)
@@ -91,7 +86,8 @@ class Requests
     {
         func extract(json: JSON)
         {
-            if let user = json["data"].dictionary {
+            print(json["user"])
+            if let user = json["user"].dictionary {
                 success(user: user)
             } else {
                 let message = "Could Not Extract User Object"
@@ -106,11 +102,11 @@ class Requests
                 standardRequest(.POST, url: url, params: user, success: extract, failure: failure)
             }
         }
-        getUser(success, failure: createUser)
+        getUser(success: success, failure: createUser)
     }
-    static func getUser(success: (user: [String: JSON]) -> (), failure: (String, Int) -> ()?)
+    static func getUser(success success: (user: [String: JSON]) -> (), failure: (String, Int) -> ()?)
     {
-        let url = host + "/users/" + token.userID
+        let url = host + "/users/me"
         func extract(json: JSON)
         {
             if let user = json["user"].dictionary {
@@ -121,9 +117,9 @@ class Requests
                 failure(message, 2)
             }
         }
-        standardRequest(url: url, success: extract, failure: failure)
+        standardRequest(.GET, url: url, params: nil, success: extract, failure: failure)
     }
-    static func getAllUsers(success: (users: [JSON]) -> (), failure: (String, Int) -> ()?)
+    static func getAllUsers(success success: (users: [JSON]) -> (), failure: (String, Int) -> ()?)
     {
         let url = host + "/users"
         func extract(json: JSON)
@@ -136,9 +132,9 @@ class Requests
                 failure(message, 0)
             }
         }
-        standardRequest(url: url, success: extract, failure: failure)
+        standardRequest(.GET, url: url, params: nil, success: extract, failure: failure)
     }
-    static func getAllFriends(success: (friends: [JSON]) -> (), failure: (String, Int) -> ()?)
+    static func getAllFriends(success success: (friends: [JSON]) -> (), failure: (String, Int) -> ()?)
     {
         if token == nil {
             failure("Token Nil -> Is User Logged In With Facebook?", 0)
@@ -154,7 +150,7 @@ class Requests
                 failure(message, 0)
             }
         }
-        standardRequest(url: url, success: extract, failure: failure)
+        standardRequest(.GET, url: url, params: nil, success: extract, failure: failure)
     }
     static func getOpponentStats(id: String, success: (stats: [String: JSON]) -> (), failure: (String, Int) -> ()?)
     {
@@ -169,7 +165,7 @@ class Requests
                 failure(message, 0)
             }
         }
-        standardRequest(url: url, success: extract, failure: failure)
+        standardRequest(.GET, url: url, params: nil, success: extract, failure: failure)
     }
     static func startNewMatchWithOpponent(opponentId: String, success: (match: [String:JSON]) -> (), failure: (String, Int) -> ())
     {

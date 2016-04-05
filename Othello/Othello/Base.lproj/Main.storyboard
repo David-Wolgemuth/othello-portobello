@@ -172,8 +172,8 @@
                         <outlet property="firstNameLabel" destination="QKj-SZ-XjY" id="0xi-9R-hkD"/>
                         <outlet property="lastNameLabel" destination="EoS-Zm-F0a" id="JlP-y2-bTJ"/>
                         <outlet property="middleNameLabel" destination="LDn-Ks-pKP" id="41F-02-hKy"/>
-                        <outlet property="opponentHistoryLabel" destination="4xw-Yy-eHD" id="4zW-Ta-5Ub"/>
-                        <outlet property="playerOpponentHistoryLabel" destination="Sd0-Uq-a5p" id="mEn-PN-3a0"/>
+                        <outlet property="opponentStatsLabel" destination="4xw-Yy-eHD" id="fin-c9-0YV"/>
+                        <outlet property="playerOpponentStatsLabel" destination="Sd0-Uq-a5p" id="oWH-Hm-4wD"/>
                         <outlet property="profileImageView" destination="dlq-Wi-YZU" id="Tpm-qb-Tyu"/>
                     </connections>
                 </tableViewController>

@@ -26,16 +26,10 @@ class MainTableViewController: UITableViewController
     override func viewDidLoad()
     {
         super.viewDidLoad()
-        getAllOpponents {
-            success in
-            if success {
-                self.tableView.reloadData()
-            } else {
-                self.displayErrorAlert()
-            }
-        }
+        getOpponents()
     }
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?)
+    {
         
     }
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int
@@ -65,12 +59,12 @@ class MainTableViewController: UITableViewController
     }
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath)
     {
-        let fbid = opponents[indexPath.section][indexPath.row].id
-        Requests.startNewMatchWithOpponent(fbid) {
-            success, match in
-            print("Success? \(success)")
-            print("New Match: \(match)")
-        }
+        let opponent = opponents[indexPath.section][indexPath.row]
+        Requests.startNewMatchWithOpponent(opponent.id, success: { (match) in
+            print("Successfully Started Match With \(opponent.name): \(match)")
+            }, failure: { (message, code) in
+            print("Could Not Start Match With \(opponent.name)")
+        })
     }
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell
     {
@@ -89,77 +83,23 @@ class MainTableViewController: UITableViewController
         cell.nameLabel.text = opponent.name
         return cell
     }
-    func getAllOpponents(completion: (Bool) -> ())
+    func getOpponents()
     {
-        opponents[0].append(Opponent.easyAI)
-        opponents[0].append(Opponent.normalAI)
-        
-        Requests.getAllUsers { success, users in
-            if (success) {
-                self.addFriendsToOpponents(users) {
-                    self.addNonFriendsToOpponents(users)
-                    completion(true)
-                }
-            } else {
-                completion(false)
-            }
-        }
-    }
-    func addFriendsToOpponents(users: [JSON], completion: () -> ())
-    {
-        Requests.getAllFriends { success, friends in
-            if (success) {
-                for friend in friends {
-                    if let id = friend["id"].string {
-                        if let name = friend["name"].string {
-                            var isUser = false
-                            for user in users {
-                                if user["facebookId"].string == id {
-                                    isUser = true
-                                    break
-                                }
-                            }
-                            if !isUser {
-                                continue
-                            }
-                            let opp = Opponent(id: id, name: name, type: .Friend)
-                            self.opponents[1].append(opp)
-                            continue
-                        }
-                    }
-                    print("Error parsing friend: \(friend)")
-                }
-            } else {
-                print("Error Getting Friends")
-            }
-            completion()
-        }
-    }
-    func addNonFriendsToOpponents(users: [JSON])
-    {
-        for user in users {
-            if let id = user["facebookId"].string {
-                if id == FBSDKAccessToken.currentAccessToken().userID {
-                    continue
-                }
-                var isFriend = false
-                for friend in opponents[1] {
-                    if friend.id == id {
-                        isFriend = true
-                        break
-                    }
-                }
-                if isFriend {
-                    continue
-                }
-                if let name = user["name"].string {
-                    let opp = Opponent(id: id, name: name, type: .NonFriend)
-                    self.opponents[2].append(opp)
-                    continue
+        Opponent.getAllOpponents(success: { (opponents) in
+            for opponent in opponents {
+                switch opponent.type {
+                case .AI:
+                    self.opponents[0].append(opponent)
+                case .Friend:
+                    self.opponents[1].append(opponent)
+                case .NonFriend:
+                    self.opponents[2].append(opponent)
                 }
             }
-            print("Error parsing user: \(user)")
-        }
+            self.tableView.reloadData()
+        }, failure: { (message, code) -> ()? in
+            self.displayErrorAlert()
+        })
     }
     func displayErrorAlert()
     {

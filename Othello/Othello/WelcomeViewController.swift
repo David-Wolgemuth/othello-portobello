@@ -14,6 +14,11 @@ class WelcomeViewController: UIViewController, FBSDKLoginButtonDelegate
     {
         print("HOST_SITE: \(Requests.host)")
         super.viewDidAppear(animated)
+//        Requests.getUser(success: { user in
+//            print(user)
+//        }, failure: { message, code in
+//            return nil
+//        })
         if FBSDKAccessToken.currentAccessToken() == nil {
             displayLoginButton()
         } else {
@@ -47,11 +52,11 @@ class WelcomeViewController: UIViewController, FBSDKLoginButtonDelegate
     }
     func loginUser()
     {
-        Requests.loginUser { success in
-            if (success) {
-                self.performSegueWithIdentifier("MainViewSegue", sender: nil)
-            }
-        }
+        Requests.getUserFromFB(success: { user in
+            self.performSegueWithIdentifier("MainViewSegue", sender: nil)
+            }, failure: { message, code in
+            print("Problem Logging In")
+        })
     }
     func loginButtonDidLogOut(loginButton: FBSDKLoginButton!)
     {

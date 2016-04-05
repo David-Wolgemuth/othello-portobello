@@ -20,19 +20,13 @@ class MainViewController: UIViewController, OpponentInfoTableViewDelegate, UIPop
     
     override func viewDidLoad()
     {
-        Requests.getUser {
-            success, json in
-            if !success {
-                print(json)
-                let message = json["message"].string
-                self.loginErrorAlert(message)
-            } else {
-                if let name = json["userdata"]["name"].string {
-                    print(name)
-                    self.navigationController?.navigationBar.topItem?.title = name
-                }
+        Requests.getUser(success: { user in
+            if let name = user["name"]?.string {
+                self.navigationController?.navigationBar.topItem?.title = name
             }
-        }
+        }, failure: { message, code in
+            self.loginErrorAlert(message)
+        })
         super.viewDidLoad()
     }
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?)
@@ -51,21 +45,16 @@ class MainViewController: UIViewController, OpponentInfoTableViewDelegate, UIPop
         }
         if segue.identifier == "showUserInfo"
         {
-            var vc = segue.destinationViewController as! UIViewController
-            var controller = vc.popoverPresentationController
-            
-            if controller != nil{
-                controller?.delegate = self
-            }
+            let vc = segue.destinationViewController
+            let controller = vc.popoverPresentationController
+            controller?.delegate = self
         }
         
     }
-    
     func adaptivePresentationStyleForPresentationController(controller: UIPresentationController) -> UIModalPresentationStyle
     {
         return UIModalPresentationStyle.None
     }
-    
     func loginErrorAlert(message: String?)
     {
         let alert = UIAlertController(title: "Login Error", message: message, preferredStyle: .Alert)

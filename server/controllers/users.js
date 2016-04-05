@@ -11,7 +11,7 @@ function UsersConstructor () {
     var self = this;
     self.index = function (req, res)
     {
-        User.find({}, "facebookId name", function (err, users) {
+        User.find({}, "fbid name", function (err, users) {
             if (err) { return reportUnknownError(err, res); }
             res.json({ message: "All Users", users: users });
         });
@@ -39,7 +39,7 @@ function UsersConstructor () {
         if (req.query.stats) {
             return Users.stats(req, res);
         }
-        User.findById(req.user._id, "name facebookId", function (err, user) {
+        User.findById(req.user._id, "name fbid", function (err, user) {
             if (err) { return reportUnknownError(err, res); }
             if (!user) {
                 return res.status(404).json({ message: "User Not Found In Database (Create User if First Time Logged In)" });
