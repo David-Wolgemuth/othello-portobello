@@ -35,6 +35,10 @@ module.exports = function (app)
         + { opponentId: "" }
         -> { match: Match }
     */
+    app.put("/matches/:id", auth.facebook, matches.update);
+    /*
+        
+    */
     app.delete("/matches/:id", auth.facebook, matches.forfeit);
     /*
         -> { success: Boolean }

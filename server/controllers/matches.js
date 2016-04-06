@@ -65,32 +65,29 @@ function MatchesConstructor ()
         if (!req.body.opponentId) {
             return res.status(400).json({ message: "Must Contain `opponentId` in Request Body" });
         }
-        Match.findCurrentContainingPlayers(req.user._id, req.body.opponentId, function (err, existing) {
+        Match.create(req.user._id, req.body.opponentId, function (err, match, affected) {
             if (err) { return reportUnknownError(err, res); }
-            if (existing) {
-                return res.json({ message: "Found Existing Match, New Match Not Created.", match: existing });
-            }
-            var match;
-            if (req.body.opponentId == "easy_ai" || req.body.opponentId == "normal_ai") {
-                console.log("HERE");
-                match = new Match({
-                    players : [req.user._id],
-                    ai : req.body.opponentId,
-                });
+            if (!affected) {
+                return res.json({ message: "Found Existing Match, New Match Not Created.", match: match });
             } else {
-                console.log("THERE");
-                match = new Match({
-                    players: [req.user._id, req.body.opponentId]
-                });
-            }
-            match.save(function (err) {
-                if (err) { return reportUnknownError(err, res); }
                 User.pushNewMatchToUsers(match.players[0], match.players[1], match._id, function (err) {
                     if (err) { return reportUnknownError(err, res); }
                     res.json({ message: "Successfully Created Match", match: match });
                 });
-            });
+            }
         });
+    };
+    self.update = function (req, res)
+    {
+        var matchId = req.params.id;
+        var move = JSON.parse(req.body.move);
+        var pid = req.user._id;
+        if (move) {
+            Match.makeMove(matchId, move, pid, function (err, match) {
+                if (err) { return reportUnknownError(err, res); }
+                res.json({ message: "Successfully Made Move", match: match });
+            });
+        }
     };
     self.forfeit = function (req, res)
     {

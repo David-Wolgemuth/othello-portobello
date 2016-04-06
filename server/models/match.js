@@ -107,6 +107,9 @@ MatchSchema.statics.findCurrentContainingPlayersFBID = function (fbidA, fbidB, c
     });
 };
 MatchSchema.statics.getValidMoves = function (matchId, callback)
+/*
+    callback(err, moves)
+*/
 {
     var self = this;
     self.findById(matchId, function (err, match) {
@@ -118,7 +121,32 @@ MatchSchema.statics.getValidMoves = function (matchId, callback)
         callback(null, moves);
     });
 };
-MatchSchema.statics.makeMove = function (move, playerId, matchId, callback)
+MatchSchema.statics.create = function (pidA, pidB, callback)
+/*
+    callback(err, match, affected)
+*/
+{
+    var self = this; 
+    self.findCurrentContainingPlayers(pidA, pidB, function (err, existing) {
+        if (err) { return reportUnknownError(err, res); }
+        if (existing) {
+            return callback(null, existing, 0);
+        }
+        var match = new self();
+        match.board = othello.makeEmptyBoard();
+        if (pidB == "easy_ai" || pidB == "normal_ai") {
+            match.players = [pidA];
+            match.ai = pidB;
+        } else {
+            match.players = [pidA, pidB];
+        }
+        match.save(callback);
+    });
+};
+MatchSchema.statics.makeMove = function (matchId, move, playerId, callback)
+/*
+    callback(err, match)
+*/
 {
     var self = this;
     self.findById(matchId, function (err, match) {
@@ -126,12 +154,15 @@ MatchSchema.statics.makeMove = function (move, playerId, matchId, callback)
         if (match.winner) {
             return callback("Match Has Already Finished");
         }
+        if (move.player != match.turn) {
+            return callback("Isn't Player's Turn");
+        }
         var isPlayersTurn = false;
-        if (match.players[0] == playerId) {
+        if (match.players[0].toString() == playerId) {
             if (match.turn == 1) {
                 isPlayersTurn = true;
             }
-        } else if (match.players[1] == playerId) {
+        } else if (match.players[1].toString() == playerId) {
             if (match.turn == 2) {
                 isPlayersTurn = true;
             }
@@ -147,12 +178,15 @@ MatchSchema.statics.makeMove = function (move, playerId, matchId, callback)
         if (!flipped) {
             return callback("No Tiles Flipped On Turn.");
         }
-        match.save(function (err) {
-            if (err) { return callback(err); }
-            callback();
+        if (match.turn == 1) { 
+            match.turn = 2 
+        } else if (match.turn == 2) { 
+            match.turn = 1 
+        }
+        match.save(function (err, match) {
+            callback(err, match);
         });
     });
-    othello.makeMove(board, move);
 };
 MatchSchema.statics.forfeitMatch = function (matchId, loserId, callback)
 /*
@@ -193,9 +227,7 @@ MatchSchema.statics.forfeitMatchWithFBID = function (matchId, loserFBID, callbac
     });
 };
 MatchSchema.pre("save", function (next) {
-    if (!this.board.length) {
-        this.board = othello.makeEmptyBoard();
-    }
+    
     next();
 });
 
