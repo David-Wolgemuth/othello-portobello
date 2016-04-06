@@ -3,43 +3,67 @@ var User = mongoose.model("User");
 var request = require("request");
 var keys = require("./keys");
 
-module.exports = (function () 
+function AuthenticationConstructor() 
 {
-    var Authentication = {};
-    Authentication.facebook = function (req, res, next)
+    var self = this;
+    self.fb = {};
+
+    
+    self.fb.http = function (req, res, next)
     {
         if (!req.headers["x-auth-token"]) {
             return res.status(403).json({
                 message: "User Not Logged In.  (x-auth-token required)"
             });
-        } else {
-            var baseUrl = "https://graph.facebook.com/me";
-            var params = { "fields" : "id", "access_token": req.headers["x-auth-token"] };
-            var url = { url: baseUrl, qs: params, json: true };
-            request(url, function (err, response, body) {
-                if (err) {
-                    console.log(err);
-                    return res.status(500).json({ message: err });
-                } else if (body.error || !body.id) {
-                    console.log("Could not authenticate", body.error);
-                    return res.status(401).json({ "message": body.error });
-                } else {
-                    User.findByFBID(body.id, function (err, user) {
-                        if (err) {
-                            var message = "Unknown Error Authenticating User";
-                            console.log(message);
-                            return res.status(500).json({ message: message });
-                        }
-                        if (user) {
-                            req.user = user;
-                        } else {
-                            req.user = { fbid: body.id }
-                        }
-                        next();
-                    });
-                }
-            });
         }
+        facebookAuth(req.headers["x-auth-token"], function (err, user) {
+            if (err) {
+                return res.status(err.code).json({ message: err.message });
+            }
+            req.user = user;
+            next();
+        });
     };
-    return Authentication;
-}) ();
+    self.fb.sockets = function (socket, callback)
+    /*
+        callback(err, user)
+    */
+    {
+        var handshake = socket.request;
+        var token = socket.request["x-auth-token"];
+        if (!token) {
+            return callback({ code: 403, message: "No Token"});
+        }
+        facebookAuth(token, callback);
+    };
+    function facebookAuth(token, callback)
+    /*
+        callback(err, user)
+    */
+    {
+        var baseUrl = "https://graph.facebook.com/me";
+        var params = { "fields" : "id", "access_token": token };
+        var url = { url: baseUrl, qs: params, json: true };
+        request(url, function (err, response, body) {
+            if (err) {
+                return callback({ code: 500, message: err });
+            } else if (body.error || !body.id) {
+                return callback({ code: 401, message: body.error });
+            } else {
+                User.findByFBID(body.id, function (err, user) {
+                    if (err) {
+                        var message = "Unknown Error Authenticating User";
+                        return callback({ code: 500, message: message });
+                    }
+                    if (user) {
+                        callback(null, user);
+                    } else {
+                        callback(null, { fbid: body.id });
+                    }
+                });
+            }
+        });
+    }
+}
+
+module.exports = new AuthenticationConstructor();

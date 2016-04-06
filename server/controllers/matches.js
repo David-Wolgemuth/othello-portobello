@@ -2,6 +2,7 @@
 var mongoose = require("mongoose");
 var Match = mongoose.model("Match");
 var User = mongoose.model("User");
+var subpub = require("../config/sub-pub.js");
 
 function reportUnknownError (err, res) {
     console.log(err);
@@ -72,6 +73,7 @@ function MatchesConstructor ()
             } else {
                 User.pushNewMatchToUsers(match.players[0], match.players[1], match._id, function (err) {
                     if (err) { return reportUnknownError(err, res); }
+                    subpub.publish(match.toObject(), "New Match Created");
                     res.json({ message: "Successfully Created Match", match: match });
                 });
             }
@@ -86,13 +88,13 @@ function MatchesConstructor ()
             Match.makeMove(matchId, move, pid, function (err, match) {
                 if (err) { return reportUnknownError(err, res); }
                 res.json({ message: "Successfully Made Move", match: match });
+                subpub.publish(match.toObject(), subpub.messages.playerMove);
                 if (match.ai) {
                     Match.makeMoveAI(matchId, function (err, match, affected) {
                         if (err) {
                             throw err;
                         }
-                        console.log("Affected:", affected);
-                        console.log(match);
+                        subpub.publish(match.toObject(), subpub.messages.aiMove);
                     });
                 }
             });
@@ -100,8 +102,9 @@ function MatchesConstructor ()
     };
     self.forfeit = function (req, res)
     {
-        Match.forfeitMatch(req.params.id, req.user._id, function (err) {
+        Match.forfeitMatch(req.params.id, req.user._id, function (err, match) {
             if (err) { reportUnknownError(err, res); }
+            subpub.publish(match, subpub.messages.forfeit);
             return res.json({ success: true, message: "Successfully Forfeited Match"});
         });
     };

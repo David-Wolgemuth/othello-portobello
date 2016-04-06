@@ -2,46 +2,46 @@
     Routes for Othello Api
 */
 
-var auth = require("./authentications.js");
+var authenticate = require("./authentications.js").fb.http;
 var users = require("../controllers/users.js");
 var matches = require("../controllers/matches.js");
 
 module.exports = function (app)
 {
-    app.get("/users/me", auth.facebook, users.show);
+    app.get("/users/me", authenticate, users.show);
     /*
         -> user: { fbid: "", name: "" }
         + ?stats=opponentId / ?stats=me
         -> stats: { total: { wins: 12, losses: 12 }, versus: { wins: 2, losses: 2 } }
     */
-    app.get("/users", auth.facebook, users.index);
+    app.get("/users", authenticate, users.index);
     /*
         -> users: [{ facebookId: "", name: "" }]
     */
-    app.get("/matches", auth.facebook, matches.index);
+    app.get("/matches", authenticate, matches.index);
     /*
         + ?opponentId=""
         + ?current=true
         -> { match: Match }
     */
-    app.get("/matches/:id", auth.facebook, matches.show);
+    app.get("/matches/:id", authenticate, matches.show);
     
-    app.post("/users", auth.facebook, users.create);
+    app.post("/users", authenticate, users.create);
     /*
         + { name: facebook_name }
     */
-    app.post("/matches", auth.facebook, matches.create);
+    app.post("/matches", authenticate, matches.create);
     /*
         + { opponentId: "" }
         -> { match: Match }
     */
-    app.put("/matches/:id", auth.facebook, matches.update);
+    app.put("/matches/:id", authenticate, matches.update);
     /*
         + { move: { "x": 2, "y": 4, "player": 1, "flipped": 2 } }
             (json move object retrieved from "getValidMoves")
         -> { match: Match }
     */
-    app.delete("/matches/:id", auth.facebook, matches.forfeit);
+    app.delete("/matches/:id", authenticate, matches.forfeit);
     /*
         -> { success: Boolean }
     */

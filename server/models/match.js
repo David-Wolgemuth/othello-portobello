@@ -3,6 +3,7 @@
 */
 var mongoose = require("mongoose");
 var othello = require("./othello.js");
+var subpub = require("../config/sub-pub.js");
 
 var MatchSchema = new mongoose.Schema({
     winner: {
@@ -227,7 +228,7 @@ MatchSchema.statics.makeMoveAI = function (matchId, callback)
 };
 MatchSchema.statics.forfeitMatch = function (matchId, loserId, callback)
 /*
-    callback(err)
+    callback(err, match)
 */
 {
     var self = this;
@@ -244,15 +245,15 @@ MatchSchema.statics.forfeitMatch = function (matchId, loserId, callback)
         } else {
             return callback("User `" + loserId + "` Not Found In Match `" + match._id + "`");
         }
-        match.save(function (err) {
+        match.save(function (err, match, affected) {
             if (err) { return callback(err); }
-            callback();
+            callback(null, match);
         });
     });
 };
 MatchSchema.statics.forfeitMatchWithFBID = function (matchId, loserFBID, callback)
 /*
-    callback(err)
+    callback(err, match)
 */
 {
     var User = mongoose.model("User");
@@ -263,9 +264,5 @@ MatchSchema.statics.forfeitMatchWithFBID = function (matchId, loserFBID, callbac
         self.forfeitMatch(matchId, loser._id, callback);
     });
 };
-MatchSchema.pre("save", function (next) {
-    
-    next();
-});
 
 mongoose.model("Match", MatchSchema);
