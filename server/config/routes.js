@@ -18,12 +18,14 @@ module.exports = function (app)
     /*
         -> users: [{ facebookId: "", name: "" }]
     */
-    app.get("/matches", auth.facebook, matches.current);
+    app.get("/matches", auth.facebook, matches.index);
     /*
         + ?opponentId=""
         + ?current=true
         -> { match: Match }
     */
+    app.get("/matches/:id", auth.facebook, matches.show);
+    
     app.post("/users", auth.facebook, users.create);
     /*
         + { name: facebook_name }
@@ -33,10 +35,20 @@ module.exports = function (app)
         + { opponentId: "" }
         -> { match: Match }
     */
+    app.put("/matches/:id", auth.facebook, matches.update);
+    /*
+        + { move: { "x": 2, "y": 4, "player": 1, "flipped": 2 } }
+            (json move object retrieved from "getValidMoves")
+        -> { match: Match }
+    */
     app.delete("/matches/:id", auth.facebook, matches.forfeit);
     /*
         -> { success: Boolean }
     */
+    app.get("/html", function (req, res) {
+        var keys = require("./keys.js");
+        res.render("index", { appId: keys.facebook.clientID });
+    });
     app.get("*", function (req, res) {
         var url = req.protocol + '://' + req.get('host') + req.originalUrl;
         res.status(404).json({ message: "GET `" + url + "`" + " Not Valid Path." }); 

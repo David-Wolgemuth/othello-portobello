@@ -2,19 +2,7 @@
     Othello Game
 */
 var validations = require("./othello-validations");
-validate = function (toValidate, args)
-{
-    if (!args) { args = {}; }
-    if ("player" in toValidate) {
-        validations.checkPlayerIsValid(toValidate.player, args.player);
-    }
-    if ("board" in toValidate) {
-        validations.checkBoardIsValid(toValidate.board, args.board);
-    }
-    if ("move" in toValidate) {
-        validations.checkMoveIsValid(toValidate.move, args.move);
-    }
-};
+
 
 
 //------------ Constants -------------//
@@ -26,7 +14,13 @@ var DIRECTIONS = [
 ];
 
 //------------ Private Functions ------------//
-
+function isInt(value) {
+    if (isNaN(value)) {
+        return false;
+    }
+    var x = parseInt(value);
+    return (x | 0) === x;
+}
 function randomElementInArray(array)
 {
     return array[Math.floor(Math.random() * array.length)];
@@ -34,7 +28,7 @@ function randomElementInArray(array)
 function inBounds(tile) 
 {
     var x = tile.x, y = tile.y;
-    return !(x < 0 || y < 0 || x > TILES || y > TILES);
+    return !(x < 0 || y < 0 || x >= TILES || y >= TILES);
 }
 function isCorner(tile)
 {
@@ -56,7 +50,7 @@ function checkDirection(board, move, direction)  // -> [{ x: Int, y: Int }]
     var opponent = (move.player % 2) + 1;
 
     increment(tile, direction);
-    if (!(inBounds(tile) && board[tile.y][tile.x] == opponent)) {
+    if (!inBounds(tile) || board[tile.y][tile.x] != opponent) {
         //  Touching Tile Must Be Opponent
         return flipped;
     }
@@ -78,12 +72,92 @@ function checkDirection(board, move, direction)  // -> [{ x: Int, y: Int }]
 }
 
 
-module.exports = (function () 
-{
-    //------------ Othello Object + Methods -------------//
+//------------ Othello Object + Methods -------------//
 
-    var Othello = {};
-    Othello.makeEmptyBoard = function ()
+function OthelloContructor() {    
+    var self = this;
+    self.validate = function(toValidate, args)
+    /*
+        throws if valid
+    */
+    {
+        if (!args) { args = {}; }
+        var error;
+        if ("player" in toValidate) {
+            error = self.checkPlayerIsValid(toValidate.player, args.player);
+            if (error) {
+                throw error;
+            }
+        }
+        if ("board" in toValidate) {
+            error = self.checkBoardIsValid(toValidate.board, args.board);
+            if (error) {
+                throw error;
+            }
+        }
+        if ("move" in toValidate) {
+            error = self.checkMoveIsValid(toValidate.move, args.move);
+            if (error) {
+                throw error;
+            }
+        }
+    };
+    self.checkBoardIsValid = function (board) 
+    /*
+        -> err if not Array with 8 Arrays Containing 8 Ints (0, 1, or 2)
+    */
+    {
+        if (!Array.isArray(board) || board.length != TILES) {
+            return "Board Not Valid";
+        }
+        for (var x = 0; x < TILES; x++) {
+            if (!Array.isArray(board[x]) || board[x].length != TILES) {
+                return "Board Not Valid";
+            }
+            for (var y = 0; y < TILES; y++) {
+                var value = board[x][y];
+                if (value !== 0 && value !== 1 && value !== 2) {
+                    return "Board Not Valid";
+                }
+            }
+        }
+    };
+    self.checkMoveIsValid = function (move)
+    /*
+        -> err if not { x: Int, y: Int, player: Int } Where x and y are 0 < 8 and player == 1 or 2
+    */
+    {
+        if (typeof move != "object") {
+            return "Invalid Move";
+        }
+        if (!("x" in move && "y" in move && "player" in move)) {
+            return "Invalid Move";
+        }
+        var x = move.x, y = move.y;
+        if (!(isInt(x) && isInt(y))) {
+            return "Move Coordinates Not Integers";
+        }
+        if(x < 0 || y < 0 || x > TILES || y > TILES) {
+            return "Move Not Within Bounds";
+        }
+        if (move.player !== 1 && move.player !== 2) {
+            return "Move Does Not Have Valid Player";
+        }
+    };
+    self.checkPlayerIsValid = function (player, canBeZero)
+    /*
+        -> err if not 1 or 2 (or 0 if okay)
+    */
+    {
+        if (player === 1 || player === 2) {
+            return;
+        }
+        if (canBeZero && player === 0) {
+            return;
+        }
+        return "Invalid Player";
+    };
+    self.makeEmptyBoard = function ()
     /*
         ->  [[0, 0, ...],  ...]
     */
@@ -99,12 +173,12 @@ module.exports = (function ()
         board[4][3] = 2; board[4][4] = 1;
         return board;
     };
-    Othello.tilesFlippedOnMove = function (board, move)
+    self.tilesFlippedOnMove = function (board, move)
     /* 
         ->  [{ x: Int, y: Int }]
     */
     {
-        validate({ board: board, move: move });
+        self.validate({ board: board, move: move });
 
         var flipped = [];
         if (board[move.y][move.x]) {
@@ -116,12 +190,12 @@ module.exports = (function ()
         });
         return flipped;
     };
-    Othello.getAllValidMoves = function (board, player)
+    self.getAllValidMoves = function (board, player)
     /*
         ->  [{ x: Int, y: Int, flipped: Int, player: Int }]
     */
     {
-        validate({ board: board, player: player });
+        self.validate({ board: board, player: player });
 
         var moves = [];
         if (!player) {  // Game Over
@@ -130,7 +204,7 @@ module.exports = (function ()
         for (var x = 0; x < TILES; x++) {
             for (var y = 0; y < TILES; y++) {
                 var move = { x: x, y: y, player: player };
-                move.flipped = Othello.tilesFlippedOnMove(board, move).length;
+                move.flipped = self.tilesFlippedOnMove(board, move).length;
                 if (move.flipped) {
                     moves.push(move);
                 } 
@@ -138,25 +212,25 @@ module.exports = (function ()
         }
         return moves;
     };
-    Othello.getRandomMove = function (board, player)
+    self.getRandomMove = function (board, player)
     /*
         ->  { x: Int, y: Int, flipped: Int, player: Int }
     */
     {
-        validate({ board: board, player: player });
+        self.validate({ board: board, player: player });
 
-        var moves = Othello.getAllValidMoves(board, player);
+        var moves = self.getAllValidMoves(board, player);
         return randomElementInArray(moves);
     };
-    Othello.getMoveCornerOrMostFlipped = function (board, player)
+    self.getMoveCornerOrMostFlipped = function (board, player)
     /*
         ->  { x: Int, y: Int, flipped: Int, player: Int }
     */
     {
-        validate({ board: board, player: player });
+        self.validate({ board: board, player: player });
 
         var bestMove = null;
-        var moves = Othello.getAllValidMoves(board, player);
+        var moves = self.getAllValidMoves(board, player);
         moves.forEach(function (move) {
             move.isCorner = isCorner(move);
             if (!bestMove) {
@@ -181,14 +255,14 @@ module.exports = (function ()
         delete bestMove.isCorner;
         return bestMove;
     };
-    Othello.makeMove = function (board, move)
+    self.makeMove = function (board, move)
     /*
         -> Bool
     */
     {
-        validate({ board: board, move: move });
+        self.validate({ board: board, move: move });
 
-        var flipped = Othello.tilesFlippedOnMove(board, move);
+        var flipped = self.tilesFlippedOnMove(board, move);
         if (!flipped.length) {
             return false;
         }
@@ -198,12 +272,12 @@ module.exports = (function ()
         });
         return true;
     };
-    Othello.getCurrentScore = function (board)
+    self.getCurrentScore = function (board)
     /*
         ->  [Int, Int, Int] (Not Played, Player 1, Player 2)
     */
     {
-        validate({ board: board });
+        self.validate({ board: board });
 
         var score = [0, 0, 0];
         for (var y = 0; y < TILES; y++) {
@@ -214,17 +288,17 @@ module.exports = (function ()
         }
         return score;
     };
-    Othello.checkGameOver = function (board)  
+    self.checkGameOver = function (board)  
     /*
         ->  0 (Game Not Over), 1 / 2 (Player Won), -1 (Tie),
     */
     {
-        validate({ board: board });
+        self.validate({ board: board });
 
-        var playerOneMoves = Othello.getAllValidMoves(board, 1).length;
-        var playerTwoMoves = Othello.getAllValidMoves(board, 2).length;
+        var playerOneMoves = self.getAllValidMoves(board, 1).length;
+        var playerTwoMoves = self.getAllValidMoves(board, 2).length;
         if (!playerOneMoves && !playerTwoMoves) {
-            var score = Othello.getCurrentScore(board);
+            var score = self.getCurrentScore(board);
             if (score[1] > score[2]) {
                 return 1;
             } else if (score[2] > score[1]) {
@@ -242,6 +316,7 @@ module.exports = (function ()
         }
         return 0;
     };
-    return Othello;
+}
 
-}) (); 
+module.exports = new OthelloContructor();
+

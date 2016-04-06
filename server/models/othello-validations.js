@@ -20,16 +20,16 @@ module.exports = (function () {
     */
     {
         if (!Array.isArray(board) || board.length != TILES) {
-            throw "Board Not Valid";
+            return "Board Not Valid";
         }
         for (var x = 0; x < TILES; x++) {
             if (!Array.isArray(board[x]) || board[x].length != TILES) {
-                throw "Board Not Valid";
+                return "Board Not Valid";
             }
             for (var y = 0; y < TILES; y++) {
                 var value = board[x][y];
                 if (value !== 0 && value !== 1 && value !== 2) {
-                    throw "Board Not Valid";
+                    return "Board Not Valid";
                 }
             }
         }
@@ -40,20 +40,20 @@ module.exports = (function () {
     */
     {
         if (typeof move != "object") {
-            throw "Invalid Move";
+            return "Invalid Move";
         }
         if (!("x" in move && "y" in move && "player" in move)) {
-            throw "Invalid Move";
+            return "Invalid Move";
         }
         var x = move.x, y = move.y;
         if (!(isInt(x) && isInt(y))) {
-            throw "Move Coordinates Not Integers";
+            return "Move Coordinates Not Integers";
         }
         if(x < 0 || y < 0 || x > TILES || y > TILES) {
-            throw "Move Not Within Bounds";
+            return "Move Not Within Bounds";
         }
         if (move.player !== 1 && move.player !== 2) {
-            throw "Move Does Not Have Valid Player";
+            return "Move Does Not Have Valid Player";
         }
     };
     Validations.checkPlayerIsValid = function (player, canBeZero)
@@ -67,7 +67,7 @@ module.exports = (function () {
         if (canBeZero && player === 0) {
             return;
         }
-        throw "Invalid Player";
+        return "Invalid Player";
     };
 
     return Validations;

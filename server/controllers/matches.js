@@ -19,10 +19,30 @@ function MatchesConstructor ()
             }
             return self.againstOpponent(req, res);
         }
-        User.findById(req.user._id, function (err, user) {
+        Match.findAllContainingPlayer(req.user._id, function (err, matches) {
             if (err) { return reportUnknownError(err, res); }
             res.json({ message: "All Matches", matches: matches});
-        });   
+        });
+    };
+    self.show = function (req, res)
+    {
+        var matchId = req.params.id;
+        Match.findById(matchId).lean().exec(function (err, match) {
+            if (err) { return reportUnknownError(err, res); }
+            if (!match) { return res.status(404).json({ message: "No Matches With Id `" + matchId + "`" }); }
+            if (match.players[0].toString() != req.user._id && match.players[1].toString() != req.user._id) {
+                return res.status(401).json({ message: "Permission Denied.  (Is logged-in user a part of this match?)" });
+            }
+            if (req.query.showValidMoves) {
+                Match.getValidMoves(matchId, function (err, validMoves) {
+                    if (err) { return reportUnknownError(err, res); }
+                    match.validMoves = validMoves;
+                    res.json({ message: "Found Match, All Valid Moves Shown", match: match });
+                });
+            } else {
+                res.json({ message: "Found Match", match: match });
+            }
+        });
     };
     self.againstOpponent = function (req, res)
     {
@@ -42,19 +62,41 @@ function MatchesConstructor ()
     };
     self.create = function (req, res)
     {
-        Match.findCurrentContainingPlayersID(req.user._id, req.body.opponentId, function (err, existing) {
+        if (!req.body.opponentId) {
+            return res.status(400).json({ message: "Must Contain `opponentId` in Request Body" });
+        }
+        Match.create(req.user._id, req.body.opponentId, function (err, match, affected) {
             if (err) { return reportUnknownError(err, res); }
-            if (existing) {
+            if (!affected) {
                 return res.json({ message: "Found Existing Match, New Match Not Created.", match: match });
+            } else {
+                User.pushNewMatchToUsers(match.players[0], match.players[1], match._id, function (err) {
+                    if (err) { return reportUnknownError(err, res); }
+                    res.json({ message: "Successfully Created Match", match: match });
+                });
             }
-            var match = new Match({
-                players: [user._id, opponent._id]
-            });
-            match.save(function (err) {
-                if (err) { return reportUnknownError(err, res); }
-                return res.json({ message: "Successfully Created Match", match: match });
-            });
         });
+    };
+    self.update = function (req, res)
+    {
+        var matchId = req.params.id;
+        var move = JSON.parse(req.body.move);
+        var pid = req.user._id;
+        if (move) {
+            Match.makeMove(matchId, move, pid, function (err, match) {
+                if (err) { return reportUnknownError(err, res); }
+                res.json({ message: "Successfully Made Move", match: match });
+                if (match.ai) {
+                    Match.makeMoveAI(matchId, function (err, match, affected) {
+                        if (err) {
+                            throw err;
+                        }
+                        console.log("Affected:", affected);
+                        console.log(match);
+                    });
+                }
+            });
+        }
     };
     self.forfeit = function (req, res)
     {
