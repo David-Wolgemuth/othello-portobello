@@ -24,6 +24,26 @@ function MatchesConstructor ()
             res.json({ message: "All Matches", matches: matches});
         });
     };
+    self.show = function (req, res)
+    {
+        var matchId = req.params.id;
+        Match.findById(matchId).lean().exec(function (err, match) {
+            if (err) { return reportUnknownError(err, res); }
+            if (!match) { return res.status(404).json({ message: "No Matches With Id `" + matchId + "`" }); }
+            if (match.players[0].toString() != req.user._id && match.players[1].toString() != req.user._id) {
+                return res.status(401).json({ message: "Permission Denied.  (Is logged-in user a part of this match?)" });
+            }
+            if (req.query.showValidMoves) {
+                Match.getValidMoves(matchId, function (err, validMoves) {
+                    if (err) { return reportUnknownError(err, res); }
+                    match.validMoves = validMoves;
+                    res.json({ message: "Found Match, All Valid Moves Shown", match: match });
+                });
+            } else {
+                res.json({ message: "Found Match", match: match });
+            }
+        });
+    };
     self.againstOpponent = function (req, res)
     {
         var user = req.user._id, opp = req.body.opponentId;

@@ -106,6 +106,54 @@ MatchSchema.statics.findCurrentContainingPlayersFBID = function (fbidA, fbidB, c
         self.findCurrentContainingPlayers(userA, userB, callback);
     });
 };
+MatchSchema.statics.getValidMoves = function (matchId, callback)
+{
+    var self = this;
+    self.findById(matchId, function (err, match) {
+        if (err) { return callback(err); }
+        if (!match) {
+            return callback("No Match Found With Id: `" + matchId + "`");
+        }
+        var moves = othello.getAllValidMoves(match.board, match.turn);
+        callback(null, moves);
+    });
+};
+MatchSchema.statics.makeMove = function (move, playerId, matchId, callback)
+{
+    var self = this;
+    self.findById(matchId, function (err, match) {
+        if (err) { return callback(err); }
+        if (match.winner) {
+            return callback("Match Has Already Finished");
+        }
+        var isPlayersTurn = false;
+        if (match.players[0] == playerId) {
+            if (match.turn == 1) {
+                isPlayersTurn = true;
+            }
+        } else if (match.players[1] == playerId) {
+            if (match.turn == 2) {
+                isPlayersTurn = true;
+            }
+        }
+        if (!isPlayersTurn) {
+            return callback("Isn't Player's Turn");
+        }
+        var invalid = othello.checkMoveIsValid(move);
+        if (invalid) {
+            return callback(invalid);
+        }
+        var flipped = othello.makeMove(match.board, move);
+        if (!flipped) {
+            return callback("No Tiles Flipped On Turn.");
+        }
+        match.save(function (err) {
+            if (err) { return callback(err); }
+            callback();
+        });
+    });
+    othello.makeMove(board, move);
+};
 MatchSchema.statics.forfeitMatch = function (matchId, loserId, callback)
 /*
     callback(err)

@@ -25,7 +25,7 @@ function UsersConstructor () {
                 res.json({ message: "User Stats", stats: stats });
             });
         } else {
-            User.winsLosses(opp, function (err, stats) {
+            User.winsLosses(opponent, function (err, stats) {
                 if (err) { return reportUnknownError(err, res); }
                 User.winsLossesAgainstPlayer(req.user._id, opponent, function (err, versus) {
                     if (err) { return reportUnknownError(err, res); }

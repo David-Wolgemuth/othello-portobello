@@ -24,6 +24,8 @@ module.exports = function (app)
         + ?current=true
         -> { match: Match }
     */
+    app.get("/matches/:id", auth.facebook, matches.show);
+    
     app.post("/users", auth.facebook, users.create);
     /*
         + { name: facebook_name }
