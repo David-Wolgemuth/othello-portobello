@@ -37,7 +37,9 @@ module.exports = function (app)
     */
     app.put("/matches/:id", auth.facebook, matches.update);
     /*
-        
+        + { move: { "x": 2, "y": 4, "player": 1, "flipped": 2 } }
+            (json move object retrieved from "getValidMoves")
+        -> { match: Match }
     */
     app.delete("/matches/:id", auth.facebook, matches.forfeit);
     /*

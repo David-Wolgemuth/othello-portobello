@@ -86,6 +86,15 @@ function MatchesConstructor ()
             Match.makeMove(matchId, move, pid, function (err, match) {
                 if (err) { return reportUnknownError(err, res); }
                 res.json({ message: "Successfully Made Move", match: match });
+                if (match.ai) {
+                    Match.makeMoveAI(matchId, function (err, match, affected) {
+                        if (err) {
+                            throw err;
+                        }
+                        console.log("Affected:", affected);
+                        console.log(match);
+                    });
+                }
             });
         }
     };

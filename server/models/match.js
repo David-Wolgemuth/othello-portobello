@@ -17,7 +17,10 @@ var MatchSchema = new mongoose.Schema({
         max: 2,
         default: 1
     },
-    board: [],
+    board: {
+        type: String,
+        default: JSON.stringify(othello.makeEmptyBoard())
+    },
     players: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
@@ -29,6 +32,10 @@ var MatchSchema = new mongoose.Schema({
 }, {
     timestamps: true
 });
+MatchSchema.methods.getBoard = function ()
+{
+    return JSON.parse(this.board);
+};
 MatchSchema.statics.findAllContainingPlayer = function (pid, callback)
 {
     var User = mongoose.model("User");
@@ -117,7 +124,7 @@ MatchSchema.statics.getValidMoves = function (matchId, callback)
         if (!match) {
             return callback("No Match Found With Id: `" + matchId + "`");
         }
-        var moves = othello.getAllValidMoves(match.board, match.turn);
+        var moves = othello.getAllValidMoves(match.getBoard(), match.turn);
         callback(null, moves);
     });
 };
@@ -133,7 +140,6 @@ MatchSchema.statics.create = function (pidA, pidB, callback)
             return callback(null, existing, 0);
         }
         var match = new self();
-        match.board = othello.makeEmptyBoard();
         if (pidB == "easy_ai" || pidB == "normal_ai") {
             match.players = [pidA];
             match.ai = pidB;
@@ -145,7 +151,7 @@ MatchSchema.statics.create = function (pidA, pidB, callback)
 };
 MatchSchema.statics.makeMove = function (matchId, move, playerId, callback)
 /*
-    callback(err, match)
+    callback(err, match, affected)
 */
 {
     var self = this;
@@ -174,7 +180,9 @@ MatchSchema.statics.makeMove = function (matchId, move, playerId, callback)
         if (invalid) {
             return callback(invalid);
         }
-        var flipped = othello.makeMove(match.board, move);
+        var board = match.getBoard();
+        var flipped = othello.makeMove(board, move);
+        match.board = JSON.stringify(board);
         if (!flipped) {
             return callback("No Tiles Flipped On Turn.");
         }
@@ -183,9 +191,38 @@ MatchSchema.statics.makeMove = function (matchId, move, playerId, callback)
         } else if (match.turn == 2) { 
             match.turn = 1 
         }
-        match.save(function (err, match) {
-            callback(err, match);
-        });
+        match.save(callback);
+    });
+};
+MatchSchema.statics.makeMoveAI = function (matchId, callback)
+{
+    var self = this;
+    self.findById(matchId, function (err, match) {
+        if (err) { return callback(err); }
+        if (!match) {
+            return callback("Match Not Found With ID `" + matchId + "`");
+        }
+        var board = match.getBoard();
+        var invalid = othello.checkBoardIsValid(board);
+        if (invalid) {
+            return callback(err);
+        }
+        if (match.turn != 2) {
+            return callback(err);
+        }
+        var move;
+        if (match.ai == "easy_ai") {
+            move = othello.getRandomMove(board, 2);
+        } else {
+            move = othello.getMoveCornerOrMostFlipped(board, 2);
+        }
+        if (!move) {
+            return callback("No Valid Moves. Is Game Over?");
+        }
+        othello.makeMove(board, move);
+        match.board = JSON.stringify(board);
+        match.turn = 1;
+        match.save(callback);
     });
 };
 MatchSchema.statics.forfeitMatch = function (matchId, loserId, callback)
