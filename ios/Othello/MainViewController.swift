@@ -23,6 +23,7 @@ class MainViewController: UIViewController, OpponentInfoTableViewDelegate, UIPop
         Requests.getUser(success: { user in
             if let name = user["name"]?.string {
                 self.navigationController?.navigationBar.topItem?.title = name
+                Connection.sharedInstance.connect()
             }
         }, failure: { message, code in
             self.loginErrorAlert(message)

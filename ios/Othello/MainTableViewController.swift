@@ -62,6 +62,11 @@ class MainTableViewController: UITableViewController
         let opponent = opponents[indexPath.section][indexPath.row]
         Requests.startNewMatchWithOpponent(opponent.id, success: { (match) in
             print("Successfully Started Match With \(opponent.name): \(match)")
+            if let matchId = match["_id"]?.string {
+                Connection.sharedInstance.subscribe(.Match, objId: matchId) { json in
+                    print(json)
+                }
+            }
             }, failure: { (message, code) in
             print("Could Not Start Match With \(opponent.name)")
         })

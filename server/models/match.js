@@ -3,7 +3,6 @@
 */
 var mongoose = require("mongoose");
 var othello = require("./othello.js");
-var subpub = require("../config/sub-pub.js");
 
 var MatchSchema = new mongoose.Schema({
     winner: {

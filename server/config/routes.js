@@ -49,11 +49,12 @@ module.exports = function (app)
         var keys = require("./keys.js");
         res.render("index", { appId: keys.facebook.clientID });
     });
-    app.get("*", function (req, res) {
+    app.get("/", function (req, res) {
+        console.log("Why");
         var url = req.protocol + '://' + req.get('host') + req.originalUrl;
         res.status(404).json({ message: "GET `" + url + "`" + " Not Valid Path." }); 
     });
-    app.post("*", function (req, res) {
+    app.post("/", function (req, res) {
         var url = req.protocol + '://' + req.get('host') + req.originalUrl;
         res.status(404).json({ message: "POST `" + url + "`" + " Not Valid Path." }); 
     });

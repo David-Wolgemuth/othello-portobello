@@ -29,8 +29,9 @@ function AuthenticationConstructor()
         callback(err, user)
     */
     {
-        var handshake = socket.request;
-        var token = socket.request["x-auth-token"];
+        var handshake = socket.handshake;
+        var headers = handshake.headers;
+        var token = headers["x-auth-token"];
         if (!token) {
             return callback({ code: 403, message: "No Token"});
         }

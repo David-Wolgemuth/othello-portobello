@@ -15,10 +15,14 @@ app.use(bodyParser.json());
 app.set("view engine", "ejs");
 app.set("views", __dirname + "/server/views");
 
-require("./server/config/db.js");
-require("./server/config/routes.js")(app);
-
 var port = process.env.PORT || 5000;
-app.listen(port, function () {
+var server = app.listen(port, function () {
     console.log("Running on Port:", port);
 });
+
+require("./server/config/db.js");
+
+var subpub = require("./server/config/sub-pub.js");
+subpub.init(server);
+
+require("./server/config/routes.js")(app);

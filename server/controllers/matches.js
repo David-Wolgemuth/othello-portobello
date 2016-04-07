@@ -88,13 +88,13 @@ function MatchesConstructor ()
             Match.makeMove(matchId, move, pid, function (err, match) {
                 if (err) { return reportUnknownError(err, res); }
                 res.json({ message: "Successfully Made Move", match: match });
-                subpub.publish(match.toObject(), subpub.messages.playerMove);
+                subpub.publish(match.toObject(), subpub.EVENTS.playerMove);
                 if (match.ai) {
                     Match.makeMoveAI(matchId, function (err, match, affected) {
                         if (err) {
                             throw err;
                         }
-                        subpub.publish(match.toObject(), subpub.messages.aiMove);
+                        subpub.publish(match.toObject(), subpub.EVENTS.aiMove);
                     });
                 }
             });
@@ -103,8 +103,8 @@ function MatchesConstructor ()
     self.forfeit = function (req, res)
     {
         Match.forfeitMatch(req.params.id, req.user._id, function (err, match) {
-            if (err) { reportUnknownError(err, res); }
-            subpub.publish(match, subpub.messages.forfeit);
+            if (err) { return reportUnknownError(err, res); }
+            subpub.publish(match, subpub.EVENTS.forfeit);
             return res.json({ success: true, message: "Successfully Forfeited Match"});
         });
     };
