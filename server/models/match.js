@@ -36,7 +36,24 @@ MatchSchema.methods.getBoard = function ()
 {
     return JSON.parse(this.board);
 };
+MatchSchema.methods.setBoard = function (board)
+{
+    this.board = JSON.stringify(board);
+};
+MatchSchema.methods.isPlayersTurn = function (pid)
+{
+    var match = this;
+    if (match.players[0].toString() == pid) {
+        return (match.turn === 1);
+    }
+    if (match.players[1].toString() == pid) {
+        return (match.turn === 2);
+    }
+};
 MatchSchema.statics.findAllContainingPlayer = function (pid, callback)
+/*
+    callback(err, matches)
+*/
 {
     var User = mongoose.model("User");
     User.findById(pid, function (err, user) {
@@ -83,6 +100,24 @@ MatchSchema.statics.findCurrentContainingPlayers = function (pidA, pidB, callbac
             }
         }
         return callback(null, null);
+    });
+};
+MatchSchema.statics.findAllWherePlayersTurn = function (pid, callback)
+/*
+    callback(err, matches)
+*/
+{
+    var self = this;
+    self.findAllContainingPlayer(pid, function (err, matches) {
+        if (err) { return callback(err); }
+        if (!matches) { return callback("Unknown Error"); }
+        var ptmatches = [];
+        matches.forEach(function (match) {
+            if (match.isPlayersTurn(pid)) {
+                ptmatches.push(match);
+            }
+        });
+        callback(null, matches);
     });
 };
 MatchSchema.statics.findAllContainingPlayersFBID = function (fbidA, fbidB, callback)
@@ -163,17 +198,8 @@ MatchSchema.statics.makeMove = function (matchId, move, playerId, callback)
         if (move.player != match.turn) {
             return callback("Isn't Player's Turn");
         }
-        var isPlayersTurn = false;
-        if (match.players[0].toString() == playerId) {
-            if (match.turn == 1) {
-                isPlayersTurn = true;
-            }
-        } else if (match.players[1].toString() == playerId) {
-            if (match.turn == 2) {
-                isPlayersTurn = true;
-            }
-        }
-        if (!isPlayersTurn) {
+        var pid = match.players[move.turn].toString();
+        if (!match.isPlayersTurn(pid)) {
             return callback("Isn't Player's Turn");
         }
         var invalid = othello.checkMoveIsValid(move);
@@ -182,7 +208,7 @@ MatchSchema.statics.makeMove = function (matchId, move, playerId, callback)
         }
         var board = match.getBoard();
         var flipped = othello.makeMove(board, move);
-        match.board = JSON.stringify(board);
+        match.setBoard(board);
         if (!flipped) {
             return callback("No Tiles Flipped On Turn.");
         }
@@ -195,6 +221,9 @@ MatchSchema.statics.makeMove = function (matchId, move, playerId, callback)
     });
 };
 MatchSchema.statics.makeMoveAI = function (matchId, callback)
+/*
+    callback(err, match, affected)
+*/
 {
     var self = this;
     self.findById(matchId, function (err, match) {
@@ -220,7 +249,7 @@ MatchSchema.statics.makeMoveAI = function (matchId, callback)
             return callback("No Valid Moves. Is Game Over?");
         }
         othello.makeMove(board, move);
-        match.board = JSON.stringify(board);
+        match.setBoard(board);
         match.turn = 1;
         match.save(callback);
     });

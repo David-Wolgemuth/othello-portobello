@@ -20,6 +20,9 @@ function MatchesConstructor ()
             }
             return self.againstOpponent(req, res);
         }
+        if (req.query.unplayed) {
+            return self.unplayed(req, res);
+        }
         Match.findAllContainingPlayer(req.user._id, function (err, matches) {
             if (err) { return reportUnknownError(err, res); }
             res.json({ message: "All Matches", matches: matches});
@@ -45,6 +48,12 @@ function MatchesConstructor ()
             }
         });
     };
+    self.unplayed = function (req, res) {
+        Match.findAllWherePlayersTurn(req.user._id, function(err, matches) {
+            if (err) { return reportUnknownError(err, res); }
+            res.json({ message: "All Matches Where Player's Turn.", matches: matches });
+        });
+    }
     self.againstOpponent = function (req, res)
     {
         var user = req.user._id, opp = req.body.opponentId;
