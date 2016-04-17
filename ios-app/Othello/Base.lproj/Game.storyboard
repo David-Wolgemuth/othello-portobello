@@ -1,0 +1,497 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10116" systemVersion="15E65" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="lR6-El-kIK">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
+        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+    </dependencies>
+    <scenes>
+        <!--Game View Controller-->
+        <scene sceneID="7xj-uS-mGU">
+            <objects>
+                <viewController id="lR6-El-kIK" customClass="GameViewController" customModule="Othello" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="WJa-wS-gu9"/>
+                        <viewControllerLayoutGuide type="bottom" id="AJt-cK-R7G"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="is1-Ts-Gyh">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="jn8-nT-4tl">
+                                <rect key="frame" x="20" y="20" width="560" height="60"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="60" id="h8G-pc-bU9"/>
+                                </constraints>
+                                <connections>
+                                    <segue destination="IJH-z7-T7F" kind="embed" identifier="embedHeader" id="J5s-AF-bDG"/>
+                                </connections>
+                            </containerView>
+                            <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="kdv-Tt-l7l">
+                                <rect key="frame" x="20" y="466" width="560" height="120"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="120" id="hwb-Fb-zhX"/>
+                                </constraints>
+                                <connections>
+                                    <segue destination="xjS-Zl-Xy4" kind="embed" identifier="embedFooter" id="uXq-Eh-DFE"/>
+                                </connections>
+                            </containerView>
+                            <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="mFw-a9-9Ro">
+                                <rect key="frame" x="108" y="84" width="384" height="382"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" secondItem="mFw-a9-9Ro" secondAttribute="height" multiplier="1:1" constant="2" id="eJK-g3-zLB"/>
+                                </constraints>
+                                <connections>
+                                    <segue destination="3O2-lB-fTM" kind="embed" identifier="embedBoard" id="x5d-fX-p85"/>
+                                </connections>
+                            </containerView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="leadingMargin" secondItem="kdv-Tt-l7l" secondAttribute="leading" id="2cB-YZ-35H"/>
+                            <constraint firstAttribute="leadingMargin" secondItem="jn8-nT-4tl" secondAttribute="leading" id="2p9-68-Ebu"/>
+                            <constraint firstAttribute="trailingMargin" relation="greaterThanOrEqual" secondItem="mFw-a9-9Ro" secondAttribute="trailing" id="2tB-JW-RIh"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="jn8-nT-4tl" secondAttribute="trailing" id="KHJ-Ft-1UG"/>
+                            <constraint firstItem="jn8-nT-4tl" firstAttribute="top" secondItem="WJa-wS-gu9" secondAttribute="bottom" id="L3h-gC-Jb9"/>
+                            <constraint firstItem="mFw-a9-9Ro" firstAttribute="leading" secondItem="is1-Ts-Gyh" secondAttribute="leadingMargin" priority="1" id="VvF-or-uEB"/>
+                            <constraint firstItem="kdv-Tt-l7l" firstAttribute="top" relation="greaterThanOrEqual" secondItem="mFw-a9-9Ro" secondAttribute="bottom" id="Zo2-Jg-eii"/>
+                            <constraint firstItem="AJt-cK-R7G" firstAttribute="top" secondItem="kdv-Tt-l7l" secondAttribute="bottom" constant="14" id="bJY-SD-hPl"/>
+                            <constraint firstItem="mFw-a9-9Ro" firstAttribute="top" secondItem="jn8-nT-4tl" secondAttribute="bottom" constant="4" id="bk4-d7-2Z5"/>
+                            <constraint firstItem="mFw-a9-9Ro" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="is1-Ts-Gyh" secondAttribute="leadingMargin" id="ogX-0S-kXJ"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="mFw-a9-9Ro" secondAttribute="trailing" priority="1" id="r71-B5-plp"/>
+                            <constraint firstItem="mFw-a9-9Ro" firstAttribute="centerX" secondItem="is1-Ts-Gyh" secondAttribute="centerX" id="rfH-Gm-4dg"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="kdv-Tt-l7l" secondAttribute="trailing" id="uen-ay-LB1"/>
+                        </constraints>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="a3z-Pr-725" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="351" y="457"/>
+        </scene>
+        <!--Board View Controller-->
+        <scene sceneID="goO-ut-YRH">
+            <objects>
+                <viewController id="3O2-lB-fTM" customClass="BoardViewController" customModule="Othello" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="UjQ-ur-03J"/>
+                        <viewControllerLayoutGuide type="bottom" id="8p9-Kj-8mQ"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleAspectFit" id="tQD-9f-E6x">
+                        <rect key="frame" x="0.0" y="0.0" width="384" height="382"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="QlG-Py-oij">
+                                <rect key="frame" x="16" y="0.0" width="352" height="382"/>
+                                <subviews>
+                                    <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="FbB-K5-Kte" customClass="RowViewController" customModule="Othello" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="0.0" width="352" height="48"/>
+                                        <subviews>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="I4w-qd-C02" userLabel="0">
+                                                <rect key="frame" x="0.0" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ie1-i1-5xk" userLabel="0">
+                                                <rect key="frame" x="44" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9Zh-ec-EPV" userLabel="0">
+                                                <rect key="frame" x="88" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6rj-av-L1E" userLabel="0">
+                                                <rect key="frame" x="132" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mzn-zb-KZ4" userLabel="0">
+                                                <rect key="frame" x="176" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="z24-UK-Hxs" userLabel="0">
+                                                <rect key="frame" x="220" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mgn-Eh-74L" userLabel="0">
+                                                <rect key="frame" x="264" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mnf-FS-2cp" userLabel="0">
+                                                <rect key="frame" x="308" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                        </subviews>
+                                    </stackView>
+                                    <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="73S-YM-dbk" customClass="RowViewController" customModule="Othello" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="48" width="352" height="48"/>
+                                        <subviews>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6vR-Xi-sL6" userLabel="0">
+                                                <rect key="frame" x="0.0" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HcE-6d-9fA" userLabel="0">
+                                                <rect key="frame" x="44" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9mY-VA-zpN" userLabel="0">
+                                                <rect key="frame" x="88" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="32x-5c-Gos" userLabel="0">
+                                                <rect key="frame" x="132" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="A1h-xi-JCV" userLabel="0">
+                                                <rect key="frame" x="176" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SHz-gq-SHI" userLabel="0">
+                                                <rect key="frame" x="220" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="82g-Gc-Swb" userLabel="0">
+                                                <rect key="frame" x="264" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mms-iy-21o" userLabel="0">
+                                                <rect key="frame" x="308" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                        </subviews>
+                                    </stackView>
+                                    <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="KAJ-eJ-Xuw" customClass="RowViewController" customModule="Othello" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="96" width="352" height="47"/>
+                                        <subviews>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="lKf-59-PjA" userLabel="0">
+                                                <rect key="frame" x="0.0" y="0.0" width="44" height="47"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="94d-g2-sr0" userLabel="0">
+                                                <rect key="frame" x="44" y="0.0" width="44" height="47"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5wN-Xl-SMe" userLabel="0">
+                                                <rect key="frame" x="88" y="0.0" width="44" height="47"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Cei-TK-iOu" userLabel="0">
+                                                <rect key="frame" x="132" y="0.0" width="44" height="47"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Cqa-lN-yQQ" userLabel="0">
+                                                <rect key="frame" x="176" y="0.0" width="44" height="47"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tgi-8d-0Cg" userLabel="0">
+                                                <rect key="frame" x="220" y="0.0" width="44" height="47"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="O6y-sR-S89" userLabel="0">
+                                                <rect key="frame" x="264" y="0.0" width="44" height="47"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aLM-3o-wD4" userLabel="0">
+                                                <rect key="frame" x="308" y="0.0" width="44" height="47"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                        </subviews>
+                                    </stackView>
+                                    <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="Kqg-6R-2MN" customClass="RowViewController" customModule="Othello" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="143" width="352" height="48"/>
+                                        <subviews>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rAl-lD-QTa" userLabel="0">
+                                                <rect key="frame" x="0.0" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="60B-Pi-A2T" userLabel="0">
+                                                <rect key="frame" x="44" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TWm-fW-zka" userLabel="0">
+                                                <rect key="frame" x="88" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qBy-Pz-0lo" userLabel="0">
+                                                <rect key="frame" x="132" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="j2J-iR-y8S" userLabel="0">
+                                                <rect key="frame" x="176" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZTs-qq-y0A" userLabel="0">
+                                                <rect key="frame" x="220" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rMD-sx-s8h" userLabel="0">
+                                                <rect key="frame" x="264" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="UAo-Xj-LpU" userLabel="0">
+                                                <rect key="frame" x="308" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                        </subviews>
+                                    </stackView>
+                                    <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="fww-bm-s8b" customClass="RowViewController" customModule="Othello" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="191" width="352" height="48"/>
+                                        <subviews>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aXn-B2-4ep" userLabel="0">
+                                                <rect key="frame" x="0.0" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eDq-Nu-vTj" userLabel="0">
+                                                <rect key="frame" x="44" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Lt0-0e-EeT" userLabel="0">
+                                                <rect key="frame" x="88" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qbW-4O-6Yc" userLabel="0">
+                                                <rect key="frame" x="132" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Qxj-hU-nmc" userLabel="0">
+                                                <rect key="frame" x="176" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="CX9-j8-tnn" userLabel="0">
+                                                <rect key="frame" x="220" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hbC-zK-IiU" userLabel="0">
+                                                <rect key="frame" x="264" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PEi-vu-CiQ" userLabel="0">
+                                                <rect key="frame" x="308" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                        </subviews>
+                                    </stackView>
+                                    <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="3as-83-FeW" customClass="RowViewController" customModule="Othello" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="239" width="352" height="48"/>
+                                        <subviews>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="r29-BJ-1LH" userLabel="0">
+                                                <rect key="frame" x="0.0" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="v6h-AT-ioU" userLabel="0">
+                                                <rect key="frame" x="44" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="YLm-FW-wme" userLabel="0">
+                                                <rect key="frame" x="88" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="K2I-Q1-2r3" userLabel="0">
+                                                <rect key="frame" x="132" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fN2-92-Wbz" userLabel="0">
+                                                <rect key="frame" x="176" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="7C4-cy-bSd" userLabel="0">
+                                                <rect key="frame" x="220" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0oQ-Lm-WEm" userLabel="0">
+                                                <rect key="frame" x="264" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ltr-sY-zav" userLabel="0">
+                                                <rect key="frame" x="308" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                        </subviews>
+                                    </stackView>
+                                    <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="kKS-Y6-dn7" customClass="RowViewController" customModule="Othello" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="287" width="352" height="47"/>
+                                        <subviews>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HSd-AA-29f" userLabel="0">
+                                                <rect key="frame" x="0.0" y="0.0" width="44" height="47"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="7iz-6w-K2f" userLabel="0">
+                                                <rect key="frame" x="44" y="0.0" width="44" height="47"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Rs0-qH-xzm" userLabel="0">
+                                                <rect key="frame" x="88" y="0.0" width="44" height="47"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="AhW-fI-d52" userLabel="0">
+                                                <rect key="frame" x="132" y="0.0" width="44" height="47"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DAL-md-n23" userLabel="0">
+                                                <rect key="frame" x="176" y="0.0" width="44" height="47"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="lnU-ED-uaW" userLabel="0">
+                                                <rect key="frame" x="220" y="0.0" width="44" height="47"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bkn-Uf-z2E" userLabel="0">
+                                                <rect key="frame" x="264" y="0.0" width="44" height="47"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="UPC-kJ-36e" userLabel="0">
+                                                <rect key="frame" x="308" y="0.0" width="44" height="47"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                        </subviews>
+                                    </stackView>
+                                    <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="gwv-J1-j7l" customClass="RowViewController" customModule="Othello" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="334" width="352" height="48"/>
+                                        <subviews>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="8Hp-TR-pjr" userLabel="0">
+                                                <rect key="frame" x="0.0" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QCW-F4-UZR" userLabel="0">
+                                                <rect key="frame" x="44" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4FC-7m-2VG" userLabel="0">
+                                                <rect key="frame" x="88" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Z1h-Mt-aQh" userLabel="0">
+                                                <rect key="frame" x="132" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OeI-eb-dPx" userLabel="0">
+                                                <rect key="frame" x="176" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hrq-Gj-lsp" userLabel="0">
+                                                <rect key="frame" x="220" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cxi-kw-zzk" userLabel="0">
+                                                <rect key="frame" x="264" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pYY-GQ-qOe" userLabel="0">
+                                                <rect key="frame" x="308" y="0.0" width="44" height="48"/>
+                                                <state key="normal" title="0"/>
+                                            </button>
+                                        </subviews>
+                                    </stackView>
+                                </subviews>
+                            </stackView>
+                        </subviews>
+                        <color key="backgroundColor" red="0.44864924481936663" green="0.73404255319148937" blue="0.41919947530368518" alpha="1" colorSpace="calibratedRGB"/>
+                        <constraints>
+                            <constraint firstItem="QlG-Py-oij" firstAttribute="centerX" secondItem="tQD-9f-E6x" secondAttribute="centerX" id="6Vh-DG-dDl"/>
+                            <constraint firstItem="8p9-Kj-8mQ" firstAttribute="top" secondItem="QlG-Py-oij" secondAttribute="bottom" id="aUb-9J-Vjf"/>
+                            <constraint firstAttribute="leadingMargin" secondItem="QlG-Py-oij" secondAttribute="leading" id="e2M-ru-2U0"/>
+                            <constraint firstItem="QlG-Py-oij" firstAttribute="top" secondItem="UjQ-ur-03J" secondAttribute="bottom" id="h1M-kY-LPy"/>
+                            <constraint firstItem="QlG-Py-oij" firstAttribute="centerY" secondItem="tQD-9f-E6x" secondAttribute="centerY" id="kRM-lq-P2q"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="QlG-Py-oij" secondAttribute="trailing" id="xQA-Or-VKY"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="stackView" destination="QlG-Py-oij" id="viN-lL-kj3"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="vQS-ml-EIT" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1034" y="457"/>
+        </scene>
+        <!--Footer View Controller-->
+        <scene sceneID="R8X-dj-rGM">
+            <objects>
+                <viewController id="xjS-Zl-Xy4" customClass="FooterViewController" customModule="Othello" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="6t7-4U-xWT"/>
+                        <viewControllerLayoutGuide type="bottom" id="8sg-Iq-nRO"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="uG9-6S-Nee">
+                        <rect key="frame" x="0.0" y="0.0" width="560" height="120"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Goa-a8-91x">
+                                <rect key="frame" x="0.0" y="0.0" width="120" height="120"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" secondItem="Goa-a8-91x" secondAttribute="height" multiplier="1:1" id="WsP-Om-Fmt"/>
+                                </constraints>
+                            </imageView>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Teq-fE-kmI">
+                                <rect key="frame" x="440" y="0.0" width="120" height="120"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" secondItem="Teq-fE-kmI" secondAttribute="height" multiplier="1:1" id="KTJ-Nr-KAj"/>
+                                </constraints>
+                            </imageView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="12" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3UG-cP-awV">
+                                <rect key="frame" x="128" y="0.0" width="18" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="12" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="iLt-wT-L8M">
+                                <rect key="frame" x="414" y="99" width="18" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="3UG-cP-awV" firstAttribute="top" secondItem="Goa-a8-91x" secondAttribute="top" id="3LT-7h-QEI"/>
+                            <constraint firstItem="Goa-a8-91x" firstAttribute="bottom" secondItem="8sg-Iq-nRO" secondAttribute="top" id="KEX-t4-mNm"/>
+                            <constraint firstAttribute="trailing" secondItem="Teq-fE-kmI" secondAttribute="trailing" id="LW7-sf-hQx"/>
+                            <constraint firstItem="Teq-fE-kmI" firstAttribute="leading" secondItem="iLt-wT-L8M" secondAttribute="trailing" constant="8" id="RPm-zG-2RD"/>
+                            <constraint firstItem="3UG-cP-awV" firstAttribute="leading" secondItem="Goa-a8-91x" secondAttribute="trailing" constant="8" id="Vaa-MB-Uy6"/>
+                            <constraint firstItem="Goa-a8-91x" firstAttribute="leading" secondItem="uG9-6S-Nee" secondAttribute="leading" id="fZz-Bk-Eyy"/>
+                            <constraint firstItem="Teq-fE-kmI" firstAttribute="bottom" secondItem="8sg-Iq-nRO" secondAttribute="top" id="j4k-92-QR2"/>
+                            <constraint firstItem="Goa-a8-91x" firstAttribute="top" secondItem="6t7-4U-xWT" secondAttribute="bottom" id="kIW-gd-G7I"/>
+                            <constraint firstItem="iLt-wT-L8M" firstAttribute="bottom" secondItem="Teq-fE-kmI" secondAttribute="bottom" id="o9b-Mt-sZv"/>
+                            <constraint firstItem="Teq-fE-kmI" firstAttribute="top" secondItem="Goa-a8-91x" secondAttribute="top" id="sCf-Zi-kdt"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="opponentImageView" destination="Teq-fE-kmI" id="C2K-qm-dC8"/>
+                        <outlet property="opponentScoreLabel" destination="iLt-wT-L8M" id="4fy-tq-Kky"/>
+                        <outlet property="playerImageView" destination="Goa-a8-91x" id="aPV-lj-SRX"/>
+                        <outlet property="playerScoreLabel" destination="3UG-cP-awV" id="iJY-X0-v7b"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="XKD-bf-Q9F" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="317" y="956"/>
+        </scene>
+        <!--Header View Controller-->
+        <scene sceneID="l2p-PT-5Pi">
+            <objects>
+                <viewController id="IJH-z7-T7F" customClass="HeaderViewController" customModule="Othello" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="hPs-oB-3sn"/>
+                        <viewControllerLayoutGuide type="bottom" id="qf3-Ta-RHY"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="OYo-lx-NOe">
+                        <rect key="frame" x="0.0" y="0.0" width="560" height="60"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Your Turn!" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4S4-uf-VzX">
+                                <rect key="frame" x="241" y="19" width="79" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="4S4-uf-VzX" firstAttribute="centerX" secondItem="OYo-lx-NOe" secondAttribute="centerX" id="mob-Vi-CRa"/>
+                            <constraint firstItem="4S4-uf-VzX" firstAttribute="centerY" secondItem="OYo-lx-NOe" secondAttribute="centerY" id="yCI-dn-87E"/>
+                        </constraints>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="m7p-fU-ntP" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1018" y="-135"/>
+        </scene>
+    </scenes>
+</document>

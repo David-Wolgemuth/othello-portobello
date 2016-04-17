@@ -10,6 +10,7 @@ import Foundation
 import Alamofire
 import SwiftyJSON
 
+typealias failureClosure = (message: String, code: Int) -> ()
 
 class Requests
 {
@@ -25,7 +26,7 @@ class Requests
         }
         return nil
     }
-    static func standardRequest(method: Alamofire.Method, url: String, params: [String: String]?, success: (JSON) -> (), failure: (message: String, code: Int) -> ()?)
+    static func standardRequest(method: Alamofire.Method, url: String, params: [String: String]?, success: (JSON) -> (), failure: failureClosure?)
     {
         if let headers = getDefaultHeaders() {
             Alamofire
@@ -34,7 +35,7 @@ class Requests
                 switch response.result {
                 case .Failure(let error):
                     print("Error: \(error)")
-                    failure(message: error.description, code: error.code)
+                    failure?(message: error.description, code: error.code)
                 case .Success(let data):
                     let json = JSON(data)
                     if let status = response.response?.statusCode {
@@ -46,54 +47,47 @@ class Requests
                                 message += "No Error Message From Server"
                             }
                             print(message)
-                            failure(message: message, code: status)
+                            failure?(message: message, code: status)
                         } else {
                             success(json)
                         }
                     } else {
                         let message = "No Response From Server"
                         print(message)
-                        failure(message: message, code: 0)
+                        failure?(message: message, code: 0)
                     }
                 }
             }
         } else {
             let message = "Headers Could Not Be Set -> Is User Logged In With Facebook?"
             print(message)
-            failure(message: message, code: 0)
+            failure?(message: message, code: 0)
         }
     }
-    static func getUserFromFB(success success: (user: [String:JSON]) -> (), failure: (String, Int) -> ()?)
+    static func getUserFromFB(success success: (user: [String:JSON]) -> (), failure: failureClosure?)
     {
         let graphRequest = FBSDKGraphRequest(graphPath: "me", parameters: ["fields": "id, name"])
         graphRequest.startWithCompletionHandler { connection, result, error in
             if let err = error {
                 let message = err.description
                 print(message)
-                failure(message, 0)
+                failure?(message: message, code: 0)
             } else {
                 if let user = result as? [String:String] {
                     self.createUserIfNotExists(user, success: success, failure: failure)
                 } else {
                     let message = "Could Not Extract User Object From Facebook"
                     print(message)
-                    failure(message, 0)
+                    failure?(message: message, code: 0)
                 }
             }
         }
     }
-    static func createUserIfNotExists(user: [String:String], success: (user: [String:JSON]) -> (), failure: (String, Int) -> ()?)
+    static func createUserIfNotExists(user: [String:String], success: (user: [String:JSON]) -> (), failure: failureClosure?)
     {
         func extract(json: JSON)
         {
-            print(json["user"])
-            if let user = json["user"].dictionary {
-                success(user: user)
-            } else {
-                let message = "Could Not Extract User Object"
-                print(message)
-                failure(message, 0)
-            }
+           extractUser(json, success: success, failure: failure)
         }
         func createUser(message: String, code: Int)
         {
@@ -104,22 +98,25 @@ class Requests
         }
         getUser(success: success, failure: createUser)
     }
-    static func getUser(success success: (user: [String: JSON]) -> (), failure: (String, Int) -> ()?)
+    static func getUser(success success: (user: [String: JSON]) -> (), failure: failureClosure?)
     {
         let url = host + "/users/me"
         func extract(json: JSON)
         {
-            if let user = json["user"].dictionary {
-                success(user: user)
-            } else {
-                let message = "Could Not Extract User Object"
-                print(message)
-                failure(message, 2)
-            }
+            extractUser(json, success: success, failure: failure)
         }
         standardRequest(.GET, url: url, params: nil, success: extract, failure: failure)
     }
-    static func getAllUsers(success success: (users: [JSON]) -> (), failure: (String, Int) -> ()?)
+    static func getUserById(id: String, success: (user: [String: JSON]) -> (), failure: failureClosure?)
+    {
+        let url = "\(host)/users/\(id)"
+        func extract(json: JSON)
+        {
+            extractUser(json, success: success, failure: failure)
+        }
+        standardRequest(.GET, url: url, params: nil, success: extract, failure: failure)
+    }
+    static func getAllUsers(success success: (users: [JSON]) -> (), failure: failureClosure?)
     {
         let url = host + "/users"
         func extract(json: JSON)
@@ -129,15 +126,15 @@ class Requests
             } else {
                 let message = "Could Not Extract Users Array"
                 print(message)
-                failure(message, 0)
+                failure?(message: message, code: 0)
             }
         }
         standardRequest(.GET, url: url, params: nil, success: extract, failure: failure)
     }
-    static func getAllFriends(success success: (friends: [JSON]) -> (), failure: (String, Int) -> ()?)
+    static func getAllFriends(success success: (friends: [JSON]) -> (), failure: failureClosure?)
     {
         if token == nil {
-            failure("Token Nil -> Is User Logged In With Facebook?", 0)
+            failure?(message: "Token Nil -> Is User Logged In With Facebook?", code: 0)
         }
         let url = "https://graph.facebook.com/me/friends?access_token=\(token.tokenString!)"
         func extract(json: JSON)
@@ -147,12 +144,12 @@ class Requests
             } else {
                 let message = "Could Not Extract Friends Array"
                 print(message)
-                failure(message, 0)
+                failure?(message: message, code: 0)
             }
         }
         standardRequest(.GET, url: url, params: nil, success: extract, failure: failure)
     }
-    static func getOpponentStats(id: String, success: (stats: [String: JSON]) -> (), failure: (String, Int) -> ()?)
+    static func getUserStats(id: String, success: (stats: [String: JSON]) -> (), failure: failureClosure?)
     {
         let url = "\(host)/users/me?stats=\(id)"
         func extract(json: JSON)
@@ -162,25 +159,57 @@ class Requests
             } else {
                 let message = "Could Not Extract Stats Object"
                 print(message)
-                failure(message, 0)
+                failure?(message: message, code: 0)
             }
         }
         standardRequest(.GET, url: url, params: nil, success: extract, failure: failure)
     }
-    static func startNewMatchWithOpponent(opponentId: String, success: (match: [String:JSON]) -> (), failure: (String, Int) -> ())
+    static func startNewMatchWithUser(opponentId: String, success: (match: [String:JSON]) -> (), failure: failureClosure?)
     {
         func extract(json: JSON)
         {
-            if let match = json["match"].dictionary {
-                success(match: match)
-            } else {
-                let message = "Could Not Extract Match Object"
-                print(message)
-                failure(message, 0)
-            }
+            extractMatch(json, success: success, failure: failure)
         }
         let url = "\(host)/matches"
         let params = [ "opponentId": opponentId ]
         standardRequest(.POST, url: url, params: params, success: extract, failure: failure)
+    }
+    static func getMatchById(id: String, success: (match: [String: JSON]) -> (), failure: failureClosure?)
+    {
+        func extract(json: JSON)
+        {
+            extractMatch(json, success: success, failure: failure)
+        }
+        let url = "\(host)/matches/\(id)"
+        standardRequest(.GET, url: url, params: nil, success: extract, failure: failure)
+    }
+    static func getMatchByUserId(id: String, success: (match: [String: JSON]) -> (), failure: failureClosure?)
+    {
+        func extract(json: JSON)
+        {
+            extractMatch(json, success: success, failure: failure)
+        }
+        let url = "\(host)/matches?opponentId=\(id)&current=true"
+        standardRequest(.GET, url: url, params: nil, success: extract, failure: failure)
+    }
+    static func extractUser(json: JSON, success: (user: [String: JSON]) -> (), failure: failureClosure?)
+    {
+        if let user = json["user"].dictionary {
+            success(user: user)
+        } else {
+            let message = "Could Not Extract User Object"
+            print(message)
+            failure?(message: message, code: 0)
+        }
+    }
+    static func extractMatch(json: JSON, success: (match: [String: JSON]) -> (), failure: failureClosure?)
+    {
+        if let match = json["match"].dictionary {
+            success(match: match)
+        } else {
+            let message = "Could Not Extract Match Object"
+            print(message)
+            failure?(message: message, code: 0)
+        }
     }
 }

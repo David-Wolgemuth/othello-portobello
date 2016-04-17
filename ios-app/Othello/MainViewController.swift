@@ -8,7 +8,7 @@
 
 import UIKit
 
-class MainViewController: UIViewController, OpponentInfoTableViewDelegate, UIPopoverPresentationControllerDelegate
+class MainViewController: UIViewController, UserInfoTableViewDelegate, UIPopoverPresentationControllerDelegate
 {
     var welcomeViewController: WelcomeViewController?
     @IBOutlet weak var searchTextField: UITextField!
@@ -21,6 +21,7 @@ class MainViewController: UIViewController, OpponentInfoTableViewDelegate, UIPop
     override func viewDidLoad()
     {
         Requests.getUser(success: { user in
+            User.setPlayer(user)
             if let name = user["name"]?.string {
                 self.navigationController?.navigationBar.topItem?.title = name
                 Connection.sharedInstance.connect()
@@ -37,9 +38,9 @@ class MainViewController: UIViewController, OpponentInfoTableViewDelegate, UIPop
             controller?.mainViewController = self
         }
         
-        if segue.identifier == "OpponentInfoPopoverSegue" {
-            let opponent = sender as! Opponent
-            let controller = segue.destinationViewController as! OpponentInfoTableViewController
+        if segue.identifier == "UserInfoPopoverSegue" {
+            let opponent = sender as! User
+            let controller = segue.destinationViewController as! UserInfoTableViewController
             controller.popoverPresentationController?.delegate = self
             controller.opponent = opponent
             controller.delegate = self

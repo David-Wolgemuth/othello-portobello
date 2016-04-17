@@ -1,5 +1,5 @@
 //
-//  OpponentInfoTableViewController.swift
+//  UserInfoTableViewController.swift
 //  Othello
 //
 //  Created by David Wolgemuth on 3/31/16.
@@ -8,21 +8,21 @@
 
 import UIKit
 
-protocol OpponentInfoTableViewDelegate
+protocol UserInfoTableViewDelegate
 {
    func dismissViewControllerAnimated(flag: Bool, completion: (() -> Void)?)
 }
 
-class OpponentInfoTableViewController: UITableViewController
+class UserInfoTableViewController: UITableViewController
 {
-    var opponent: Opponent!
-    var delegate: OpponentInfoTableViewDelegate!
+    var opponent: User!
+    var delegate: UserInfoTableViewDelegate!
     
     @IBOutlet weak var profileImageView: UIImageView!
     @IBOutlet weak var firstNameLabel: UILabel!
     @IBOutlet weak var middleNameLabel: UILabel!
     @IBOutlet weak var lastNameLabel: UILabel!
-    @IBOutlet weak var playerOpponentStatsLabel: UILabel!
+    @IBOutlet weak var playerUserStatsLabel: UILabel!
     @IBOutlet weak var opponentStatsLabel: UILabel!
     override func viewDidAppear(animated: Bool)
     {
@@ -49,17 +49,17 @@ class OpponentInfoTableViewController: UITableViewController
     }
     func getHistory()
     {
-        Requests.getOpponentStats(opponent.id, success: { (stats) in
+        Requests.getUserStats(opponent.id, success: { (stats) in
             if stats["totals"] != nil {
                 let total = "\(stats["totals"]!["wins"]) : \(stats["totals"]!["losses"]))"
                 self.opponentStatsLabel.text = total
             }
             if stats["versus"] != nil {
                 let versus = "\(stats["versus"]!["wins"]) : \(stats["versus"]!["losses"]))"
-                self.playerOpponentStatsLabel.text = versus
+                self.playerUserStatsLabel.text = versus
             }
             }, failure: { (message, code) -> ()? in
-                print("Unable to get Opponent Stats")
+                print("Unable to get User Stats")
         })
     }
     func setProfileImage()

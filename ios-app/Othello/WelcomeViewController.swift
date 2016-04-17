@@ -14,11 +14,6 @@ class WelcomeViewController: UIViewController, FBSDKLoginButtonDelegate
     {
         print("HOST_SITE: \(Requests.host)")
         super.viewDidAppear(animated)
-//        Requests.getUser(success: { user in
-//            print(user)
-//        }, failure: { message, code in
-//            return nil
-//        })
         if FBSDKAccessToken.currentAccessToken() == nil {
             displayLoginButton()
         } else {

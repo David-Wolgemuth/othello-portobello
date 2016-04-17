@@ -9,7 +9,7 @@
 import UIKit
 import SwiftyJSON
 
-class OpponentCell: UITableViewCell
+class UserCell: UITableViewCell
 {
     @IBOutlet weak var profileImage: UIImageView!
     @IBOutlet weak var nameLabel: UILabel!
@@ -20,13 +20,13 @@ class MainTableViewController: UITableViewController
     var mainViewController: MainViewController?
     var opponents = [
         // AI           Friend        NonFriend
-        [Opponent](), [Opponent](), [Opponent]()
+        [User](), [User](), [User]()
     ]
     
     override func viewDidLoad()
     {
         super.viewDidLoad()
-        getOpponents()
+        getUsers()
     }
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?)
     {
@@ -40,7 +40,7 @@ class MainTableViewController: UITableViewController
     {
         switch section {
         case 0:
-            return "AI Opponents"
+            return "AI Users"
         case 1:
             return "Friends"
         case 2:
@@ -55,28 +55,33 @@ class MainTableViewController: UITableViewController
     }
     override func tableView(tableView: UITableView, accessoryButtonTappedForRowWithIndexPath indexPath: NSIndexPath)
     {
-        mainViewController?.performSegueWithIdentifier("OpponentInfoPopoverSegue", sender: opponents[indexPath.section][indexPath.row])
+        mainViewController?.performSegueWithIdentifier("UserInfoPopoverSegue", sender: opponents[indexPath.section][indexPath.row])
     }
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath)
     {
         let opponent = opponents[indexPath.section][indexPath.row]
-        Requests.startNewMatchWithOpponent(opponent.id, success: { (match) in
-            print("Successfully Started Match With \(opponent.name): \(match)")
-            if let matchId = match["_id"]?.string {
-                Connection.sharedInstance.subscribe(.Match, objId: matchId) { json in
-                    print(json)
-                }
-            }
-            }, failure: { (message, code) in
-            print("Could Not Start Match With \(opponent.name)")
-        })
+        let storyboard = UIStoryboard(name: "Game", bundle: nil)
+        let gameViewController = storyboard.instantiateInitialViewController() as! GameViewController
+        gameViewController.opponent = opponent
+        presentViewController(gameViewController, animated: true, completion: { print("Transitioned") })
+        
+//        Requests.startNewMatchWithUser(opponent.id, success: { (match) in
+//            print("Successfully Started Match With \(opponent.name): \(match)")
+//            if let matchId = match["_id"]?.string {
+//                Connection.sharedInstance.subscribe(.Match, objId: matchId) { json in
+//                    print(json)
+//                }
+//            }
+//            }, failure: { (message, code) in
+//            print("Could Not Start Match With \(opponent.name)")
+//        })
     }
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell
     {
-        let cell = tableView.dequeueReusableCellWithIdentifier("OpponentCell") as! OpponentCell
+        let cell = tableView.dequeueReusableCellWithIdentifier("UserCell") as! UserCell
         let opponent = opponents[indexPath.section][indexPath.row]
         if opponent.type == .AI {
-            // AI Opponent
+            // AI User
             cell.profileImage.image = UIImage(named: opponent.getImageURL(size: .Normal))
         } else {
             if let url = NSURL(string: opponent.getImageURL(size: .Normal)) {
@@ -88,17 +93,22 @@ class MainTableViewController: UITableViewController
         cell.nameLabel.text = opponent.name
         return cell
     }
-    func getOpponents()
+    func getUsers()
     {
-        Opponent.getAllOpponents(success: { (opponents) in
+        User.getAllUsers(success: { (opponents) in
             for opponent in opponents {
                 switch opponent.type {
                 case .AI:
                     self.opponents[0].append(opponent)
+                    break
                 case .Friend:
                     self.opponents[1].append(opponent)
+                    break
                 case .NonFriend:
                     self.opponents[2].append(opponent)
+                    break
+                case .Player:
+                    break
                 }
             }
             self.tableView.reloadData()
