@@ -11,12 +11,22 @@ import UIKit
 class BoardViewController: UIViewController
 {
     @IBOutlet weak var stackView: UIStackView!
+    var match: Match!
+    
     override func viewDidLoad()
     {
         setBorders()
         super.viewDidLoad()
-        setTile(1, col: 1, player: 1)
-        setTile(2, col: 2, player: 2)
+    }
+    func updateTiles()
+    {
+        print("Board: \(match.board.rows)")
+        let rows = match.board.rows
+        for row in 0..<rows.count {
+            for col in 0..<rows[row].count {
+                setTile(row, col: col, player: rows[row][col])
+            }
+        }
     }
     func setTile(row: Int, col: Int, player: Int)
     {

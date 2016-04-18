@@ -10,6 +10,7 @@ import UIKit
 
 class HeaderViewController: UIViewController
 {
+    var match: Match!
     override func viewDidLoad()
     {
         

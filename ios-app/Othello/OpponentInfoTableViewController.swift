@@ -58,13 +58,13 @@ class UserInfoTableViewController: UITableViewController
                 let versus = "\(stats["versus"]!["wins"]) : \(stats["versus"]!["losses"]))"
                 self.playerUserStatsLabel.text = versus
             }
-            }, failure: { (message, code) -> ()? in
+            }, failure: { message, code in
                 print("Unable to get User Stats")
         })
     }
     func setProfileImage()
     {
-        if opponent.type == .AI {
+        if opponent.type == UserType.AI {
             let image = UIImage(named: (opponent.getImageURL(size: .Normal)))
             profileImageView.image = image
         } else {

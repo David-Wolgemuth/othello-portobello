@@ -18,7 +18,27 @@ class GameViewController: UIViewController
     
     override func viewDidLoad()
     {
-        print("Loaded Controller")
+        Requests.startNewMatchWithUser(opponent.id, success: { matchJSON in
+            let _ = Match(matchJSON: matchJSON, success: { match in
+                self.setMatchForAllViews(match)
+                self.board.updateTiles()
+                Connection.sharedInstance.subscribe(.Match, objId: match.id) { json in
+                    Requests.extractMatch(json, success: { matchJSON in
+                        self.match.update(withJSON: matchJSON, success: { _ in
+                            self.board.updateTiles()
+                        }, failure: { message, code in
+                            print("PUSHED ERROR: \(message)")
+                        })
+                    }, failure: { message, code in
+                        print(message)
+                    })
+                }
+            }, failure: { message, code in
+                print("ERROR SAVING MATCH: \(message)")
+            })
+        }, failure: { (message, code) in
+            print("Could Not Start Match With \(self.opponent.name)")
+        })
     }
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?)
     {
@@ -38,5 +58,12 @@ class GameViewController: UIViewController
                 break;
             }
         }
+    }
+    func setMatchForAllViews(match: Match)
+    {
+        self.match = match
+        self.board.match = match
+        self.header.match = match
+        self.footer.match = match
     }
 }

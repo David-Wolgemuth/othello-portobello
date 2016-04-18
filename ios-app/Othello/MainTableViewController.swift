@@ -9,7 +9,7 @@
 import UIKit
 import SwiftyJSON
 
-class UserCell: UITableViewCell
+class OpponentCell: UITableViewCell
 {
     @IBOutlet weak var profileImage: UIImageView!
     @IBOutlet weak var nameLabel: UILabel!
@@ -64,23 +64,12 @@ class MainTableViewController: UITableViewController
         let gameViewController = storyboard.instantiateInitialViewController() as! GameViewController
         gameViewController.opponent = opponent
         presentViewController(gameViewController, animated: true, completion: { print("Transitioned") })
-        
-//        Requests.startNewMatchWithUser(opponent.id, success: { (match) in
-//            print("Successfully Started Match With \(opponent.name): \(match)")
-//            if let matchId = match["_id"]?.string {
-//                Connection.sharedInstance.subscribe(.Match, objId: matchId) { json in
-//                    print(json)
-//                }
-//            }
-//            }, failure: { (message, code) in
-//            print("Could Not Start Match With \(opponent.name)")
-//        })
     }
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell
     {
-        let cell = tableView.dequeueReusableCellWithIdentifier("UserCell") as! UserCell
+        let cell = tableView.dequeueReusableCellWithIdentifier("OpponentCell") as! OpponentCell
         let opponent = opponents[indexPath.section][indexPath.row]
-        if opponent.type == .AI {
+        if opponent.type == UserType.AI {
             // AI User
             cell.profileImage.image = UIImage(named: opponent.getImageURL(size: .Normal))
         } else {
@@ -95,9 +84,9 @@ class MainTableViewController: UITableViewController
     }
     func getUsers()
     {
-        User.getAllUsers(success: { (opponents) in
+        User.getAllUsers(success: { opponents in
             for opponent in opponents {
-                switch opponent.type {
+                switch opponent.type! {
                 case .AI:
                     self.opponents[0].append(opponent)
                     break
@@ -112,7 +101,7 @@ class MainTableViewController: UITableViewController
                 }
             }
             self.tableView.reloadData()
-        }, failure: { (message, code) -> ()? in
+        }, failure: { message, code in
             self.displayErrorAlert()
         })
     }

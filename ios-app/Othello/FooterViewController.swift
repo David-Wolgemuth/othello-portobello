@@ -17,6 +17,7 @@ class FooterViewController: UIViewController
     @IBOutlet weak var opponentScoreLabel: UILabel!
     
     var opponent: User!
+    var match: Match!
     
     override func viewDidLoad()
     {
@@ -32,7 +33,10 @@ class FooterViewController: UIViewController
             }
         
         }
-        if let url = NSURL(string: opponent.getImageURL(size: .Large)) {
+        if opponent.type! == .AI {
+            let image = UIImage(named: opponent.getImageURL(size: .Normal))
+            opponentImageView.image = image
+        } else if let url = NSURL(string: opponent.getImageURL(size: .Large)) {
             print(url.absoluteString)
             if let data = NSData(contentsOfURL: url) {
                 let image = UIImage(data: data)

@@ -21,11 +21,13 @@ class MainViewController: UIViewController, UserInfoTableViewDelegate, UIPopover
     override func viewDidLoad()
     {
         Requests.getUser(success: { user in
-            User.setPlayer(user)
-            if let name = user["name"]?.string {
+            User.setPlayer(user, success: {
+                let name = User.player.name
                 self.navigationController?.navigationBar.topItem?.title = name
                 Connection.sharedInstance.connect()
-            }
+            }, failure: { message, code in
+                self.loginErrorAlert(message)
+            })
         }, failure: { message, code in
             self.loginErrorAlert(message)
         })

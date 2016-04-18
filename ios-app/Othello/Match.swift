@@ -8,22 +8,79 @@
 
 import SwiftyJSON
 
+class Turn
+{
+    var row: Int!
+    var column: Int!
+    var player: Int!
+    init(row r: Int, column c: Int, player p: Int)
+    {
+        row = r
+        column = c
+        player = p
+    }
+}
+
+class Board
+{
+    var string: String
+    var rows = [[Int]]()
+    init(string str: String, success: (Board) -> (), failure: failureClosure?)
+    {
+        string = str
+        update(success, failure: failure)
+    }
+    func playerAtRow(row: Int, andColumn col: Int) -> Int
+    {
+        return rows[row][col]
+    }
+    func update(success: (Board) -> (), failure: failureClosure?)
+    {
+        if let data = string.dataUsingEncoding(NSUTF8StringEncoding) {
+            let json = JSON(data: data)
+            if let board = json.array {
+                rows.removeAll()
+                for y in 0..<board.count {
+                    rows.append([])
+                    let row = board[y].array!
+                    for x in 0..<row.count {
+                        rows[y].append(row[x].int!)
+                    }
+                }
+            } else {
+                failure?(message: "Failure To Update Board (could not retrieve array from json)", code: 0)
+                return
+            }
+        } else {
+            failure?(message: "Failure to Convert Data to JSON", code: 0)
+            return
+        }
+        success(self)
+    }
+    func update(string str: String, success: (Board) -> (), failure: failureClosure?)
+    {
+        string = str
+        update(success, failure: failure)
+    }
+}
+
 class Match
 {
     var id: String!
     var winner: Int!
     var turn: Int!
-    var board: [[Int]]!
-    var players: [User]!
+    var board: Board!
+    var players = [User]()
+    var validTurns = [Turn]()
     
-    init(opponentId: String, failure: failureClosure?)
+    init(matchJSON: [String: JSON], success: (Match) -> (), failure: failureClosure?)
     {
-        
+        parseOriginalJSON(matchJSON, success: success, failure: failure)
     }
-    init(matchId: String, failure: failureClosure?)
+    init(matchId: String, success: (Match) -> (), failure: failureClosure?)
     {
         Requests.getMatchById(id, success: { match in
-            self.update(match, failure: failure)
+            self.parseOriginalJSON(match, success: success, failure: failure)
         }, failure: failure)
     }
     init(opponent: User, failure: failureClosure?)
@@ -32,38 +89,67 @@ class Match
             
         }, failure: failure)
     }
-    func update(success: () -> (), failure: failureClosure?)
+    func update(withJSON json: [String: JSON], success: (Match) -> (), failure: failureClosure?)
     {
-        
+        parseUpdatedJSON(json, success: success, failure: failure)
     }
-    func update(match: [String: JSON], failure: failureClosure?)
+    func parseOriginalJSON(match: [String: JSON], success: (Match) -> (), failure: failureClosure?)
     {
-        id = match["id"]?.string
-        winner = match["winner"]?.int
-        turn = match["turn"]?.int
-        
-        if players.count == 0 {
-            if let _players = match["players"]?.array {
-                for _player in _players {
-                    if _player.string == User.player.id {
-                        players.append(User.player)
-                    } else {
-                        if let id = _player.string {
-                            Requests.getUserById(id, success: { user in }, failure: failure)
-                        }
+        if let id = match["_id"]?.string {
+            self.id = id
+        } else {
+            parseFailure(failure); return
+        }
+        if let playersStringArray = match["players"]?.array {
+            if playersStringArray.count > 0 {
+                let p1 = User(id: playersStringArray[0].string!, success: {}, failure: failure)
+                self.players.append(p1)
+            }
+            if playersStringArray.count > 1 {
+                let p2 = User(id: playersStringArray[1].string!, success: {}, failure: failure)
+                self.players.append(p2)
+            } else {
+                if let ai = match["ai"]?.string {
+                    switch ai {
+                    case "easy_ai":
+                        self.players.append(User.easyAI)
+                        break
+                    case "normal_ai":
+                        self.players.append(User.normalAI)
+                    default:
+                        failure?(message: "No Opponent Found In Match", code: 0)
+                        break
                     }
                 }
             }
         }
+        parseUpdatedJSON(match, success: success, failure: failure)
     }
-    static func parseJSON(match: [String: JSON], success: () -> (), failure: failureClosure?)
+    func parseUpdatedJSON(match: [String: JSON], success: (Match) -> (), failure: failureClosure?)
     {
-        if id != match["id"]?.string {
-            failure?(message: "Match IDs Do Not Match", code: 0)
-            return
+        if let winner = match["winner"]?.int {
+            self.winner = winner
+        } else {
+            parseFailure(failure); return
         }
-        
-        
-        
+        if let turn = match["turn"]?.int {
+            self.turn = turn
+        } else {
+            parseFailure(failure); return
+        }
+        if let boardString = match["board"]?.string {
+            let _ = Board(string: boardString, success: {
+                board in
+                self.board = board
+                success(self)
+            } , failure: failure)
+        } else {
+            parseFailure(failure); return
+        }
     }
+}
+
+func parseFailure(failure: failureClosure?)
+{
+    failure?(message: "Unable To Parse Match JSON", code: 0)
 }

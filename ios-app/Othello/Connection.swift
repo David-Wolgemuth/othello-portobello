@@ -38,7 +38,6 @@ class Connection
         let options = SocketIOClientOption.ExtraHeaders(["x-auth-token": Requests.token.tokenString])
         socket = SocketIOClient(socketURL: url, options: Set(arrayLiteral: options))
         socket!.connect()
-        print("Here")
         socket!.onAny { event in
             print("Socket Event: \"\(event.event)\" -> \(JSON(event.items!))")
         }
