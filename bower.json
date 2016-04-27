@@ -1,0 +1,24 @@
+{
+  "name": "othello-portobello",
+  "homepage": "https://github.com/David-Wolgemuth/othello-portobello",
+  "authors": [
+    "David Wolgemuth <davidjwolgemuth@gmail.com>"
+  ],
+  "description": "Multiplayer Othello",
+  "main": "index.html",
+  "moduleType": [],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "^1.5.5",
+    "angular-route": "^1.5.5",
+    "angular-hamburger-toggle": "^0.2.0",
+    "bootstrap": "^3.3.6"
+  }
+}

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html ng-app="othelloApp">
+<head>
+	<title>Facebook Login JavaScript Example</title>
+	<meta charset="UTF-8">
+
+	<link rel="stylesheet" href="bootstrap/dist/css/bootstrap.css">
+	<link rel="stylesheet" href="bootstrap/fonts/glyphicons-halflings-regular.woff">
+	<link rel="stylesheet" href="angular-hamburger-toggle/dist/angular-hamburger-toggle.css">
+
+	<link rel="stylesheet" href="styles/sidebar.css">
+
+	<script src="angular/angular.js"></script>
+	<script src="angular-route/angular-route.js"></script>
+	<script src="angular-hamburger-toggle/dist/angular-hamburger-toggle.js"></script>
+
+	<script src="scripts/authentication-factory.js"></script>
+	<script src="scripts/user-factory.js"></script>
+	<script src="scripts/match-factory.js"></script>
+
+	<script src="scripts/main-controller.js"></script>
+	<script src="scripts/sidebar-controller.js"></script>
+
+	<script src="scripts/main.js"></script>
+
+	<script src="scripts/directives.js"></script>
+
+</head>
+<body ng-controller="mainController as mc">
+	<hamburger-toggle ng-if="mc.loggedIn == true" state="mc.hamburger"></hamburger-toggle>
+	<sidebar></sidebar>
+	
+
+	<button ng-if="mc.loggedIn == false" ng-click="mc.login()">Login</button>
+
+</body>
+</html>

@@ -12,8 +12,8 @@ var app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-app.set("view engine", "ejs");
-app.set("views", __dirname + "/server/views");
+app.use(express.static(path.join(__dirname, "server/static")));
+app.use(express.static(path.join(__dirname, "bower_components")));
 
 var port = process.env.PORT || 5000;
 var server = app.listen(port, function () {

@@ -1,4 +1,5 @@
 
+ignored-files
 xcuserdata
 node_modules
 bower_components

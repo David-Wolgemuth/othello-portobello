@@ -1,0 +1,36 @@
+
+<div class="sidenav" ng-class="{open: mc.hamburger}">
+	<ul class="nav nav-pills nav-stacked" ng-controller="sidebarController as sbc">
+		<li role="presentation" class="active"><a href="#">Home</a></li>
+		<li role="presentation"><a href ng-click="mc.checkLoginState()">Check Status</a></li>
+		<li role="presentation"><a href ng-click="mc.logout()">Logout</a></li>
+
+		<li role="presentation" ng-class="{ 'active': !gamesHidden }">
+			<a href ng-click="gamesHidden=!gamesHidden">Games
+				<div ng-click="gamesHidden = !gamesHidden" style=";" ng-class="{ 'rotated-arrow': gamesHidden, 'non-rotated-arrow': !gamesHidden }">
+					<span class="glyphicon glyphicon-menu-down"></span>
+				</div>
+			</a>
+		</li>
+		<li ng-if="!gamesHidden" ng-repeat="match in sbc.matches | orderBy : 'currentTurn'">
+			<a href>
+				<span ng-bind="match.text"></span> <span class="pull-right" ng-class="{ 'glyphicon glyphicon-exclamation-sign' : match.currentTurn }" ></span>
+			</a>
+		</li>
+
+		<li role="presentation" ng-class="{ 'active': !usersHidden }">
+			<a href ng-click="usersHidden=!usersHidden">Users
+				<div ng-click="usersHidden = !usersHidden" style=";" ng-class="{ 'rotated-arrow' : usersHidden, 'non-rotated-arrow' : !usersHidden }">
+					<span class="glyphicon glyphicon-menu-down"></span>
+				</div>
+			</a>
+		</li>
+		<li ng-if="!usersHidden" ng-repeat="user in sbc.users | orderBy:'friend'">
+			<a href >
+				<img class="small-profile-image" ng-src="https://graph.facebook.com/{{ user.fbid }}/picture?type=small" width="40" height="40" alt="IMG">
+				<span ng-bind="user.name"></span>
+				<span class="pull-right" ng-class="{ 'glyphicon glyphicon-user' : user.friend }" ></span>
+			</a>
+		</li>
+	</ul>
+</div>
