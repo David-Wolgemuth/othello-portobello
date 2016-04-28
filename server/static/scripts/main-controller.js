@@ -1,5 +1,5 @@
 
-function MainController (authenticationFactory, userFactory, $document, $scope)
+function MainController (Auth, User, Match, $document, $scope)
 {
     var self = this;
     self.hamburger = false;
@@ -7,9 +7,9 @@ function MainController (authenticationFactory, userFactory, $document, $scope)
 
     self.login = function ()
     {
-        authenticationFactory.login()
+        Auth.login()
         .then(function () {
-            self.loggedIn = true;
+            self.didLogIn();
         })
         .catch(function() {
             self.loggedIn = false;
@@ -17,7 +17,7 @@ function MainController (authenticationFactory, userFactory, $document, $scope)
     };
     self.logout = function ()
     {
-        authenticationFactory.logout(function () {
+        Auth.logout(function () {
             $scope.$apply(function () {
                 self.loggedIn = false;
             });
@@ -25,13 +25,11 @@ function MainController (authenticationFactory, userFactory, $document, $scope)
     };
     self.checkLoginState = function ()
     {
-        authenticationFactory.getLoginStatus()
+        Auth.getLoginStatus()
         .then(function () {
-            userFactory.createUserIfNotExists()
+            User.createUserIfNotExists()
             .then(function () {
-                console.log("Login Successful!!!");
-                console.log("Token:", authenticationFactory.token);
-                self.loggedIn = true;
+                self.didLogIn();
             })
             .catch(function () {
                 console.log("Error Creating User / Logging In");
@@ -43,8 +41,15 @@ function MainController (authenticationFactory, userFactory, $document, $scope)
             self.loggedIn = false;
         });
     };
+    self.didLogIn = function ()
+    {
+        self.loggedIn = true;
+        User.getUsers();
+        Match.getAllContainingPlayer();
+    };
+
+
     $document.ready(function () {
-        console.log("Ready");
         setTimeout(self.checkLoginState, 1000);
     });
 }

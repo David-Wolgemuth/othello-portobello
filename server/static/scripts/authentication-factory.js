@@ -11,7 +11,6 @@ function AuthenticationFactory ($q, $http)
         var deferred = $q.defer();
 
         FB.getLoginStatus(function(response) {
-            console.log("Got Login Status:", response);
             factory.statusChangedCallback(response)
             .then(deferred.resolve)
             .catch(deferred.reject);
@@ -46,7 +45,7 @@ function AuthenticationFactory ($q, $http)
     };
     factory.setToken = function (token)
     {
-        factory.token = token
+        factory.token = token;
         $http.defaults.headers.common["x-auth-token"] = factory.token;
     };
 

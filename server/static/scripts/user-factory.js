@@ -1,5 +1,5 @@
 
-function UserFactory ($q, $http, authenticationFactory)
+function UserFactory ($q, $http)
 {
     var factory = {};
     factory.user = null;
@@ -11,8 +11,7 @@ function UserFactory ($q, $http, authenticationFactory)
 
         $http.get("/users/me")
         .then(function (res) {
-            factory.user = res.data;
-            console.log("Got User:", factory.user);
+            factory.user = res.data.user;
             deferred.resolve(factory.user);
         })
         .catch(function (res, status) {
@@ -22,6 +21,7 @@ function UserFactory ($q, $http, authenticationFactory)
 
         return deferred.promise;
     };
+
     factory.getUsers = function ()
     {
         var deferred = $q.defer();
@@ -29,7 +29,6 @@ function UserFactory ($q, $http, authenticationFactory)
         $http.get("/users")
         .then(function (res) {
             if (Array.isArray(res.data.users)) {
-                console.log("Users:", res.data.users);
                 factory.users = res.data.users;
                 factory.getFriends()
                 .then(function (friends) {
@@ -62,7 +61,7 @@ function UserFactory ($q, $http, authenticationFactory)
                 console.log("Error:", response.error);
                 deferred.reject(response.error);
             } else {
-                deferred.resolve(response);
+                deferred.resolve(response.data);
             }
         });
 
@@ -75,7 +74,6 @@ function UserFactory ($q, $http, authenticationFactory)
 
         $http.post("/users", user)
         .then(function (res) {
-            console.log("Successfully Created User:", user);
             factory.user = res.data;
             deferred.resolve(factory.user);
         })
@@ -111,9 +109,12 @@ function UserFactory ($q, $http, authenticationFactory)
 
     function mapUsersAsFriends(friends)
     {
-        for (var i = 0; i < factory.users.length; i++) {
+        for (var i = factory.users.length - 1; i >= 0; i--) {
+            if (factory.users[i]._id == factory.user._id) {
+                factory.users.splice(i, 1);
+                continue;
+            }
             for (var j = 0; j < friends.length; j++) {
-                console.log("BHBHBH");
                 if (factory.users[i].fbid == friends[j].id) {
                     factory.users[i].friend = true;
                 }

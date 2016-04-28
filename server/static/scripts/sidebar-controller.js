@@ -1,15 +1,12 @@
 
-function SideBarController (authenticationFactory, userFactory, matchFactory)
+function SideBarController (Auth, User, Match)
 {
     var self = this;
 
-    authenticationFactory.onLogin.push(function ()
+    self.update = function ()
     {
-        userFactory.getUsers()
-        .then(function (users) {
-            self.users = users;
-        });
-    });
+        self.users = User.users;
+        self.matches = Match.matches;
+    };
 
-    self.matches = [{ text: "hi" }, { text: "bye", currentTurn: true }, { text: "sigh"}];
 }

@@ -6,7 +6,8 @@
 
 .sidenav {
   width: 0;
-  overflow: hidden;
+  overflow-y: scroll;
+  overflow-x: hidden;
   position: fixed;
   left: 0;
   top: 36px;

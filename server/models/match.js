@@ -50,6 +50,22 @@ MatchSchema.methods.isPlayersTurn = function (pid)
         return (match.turn === 2);
     }
 };
+MatchSchema.statics.findAllActiveContainingPlayer = function (pid, callback)
+/*
+    callback(err, matches)
+*/
+{
+    var Match = this;
+    Match.find({ 
+        $and: [
+            { players: pid },
+            { winner: { $eq: 0 } }
+        ]
+    }).populate("players", "fbid name").exec(function (err, matches) {
+        console.log(matches);
+        callback(err, matches);
+    });
+};
 MatchSchema.statics.findAllContainingPlayer = function (pid, callback)
 /*
     callback(err, matches)

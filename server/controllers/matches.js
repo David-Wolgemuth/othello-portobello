@@ -23,10 +23,17 @@ function MatchesConstructor ()
         if (req.query.unplayed) {
             return self.unplayed(req, res);
         }
-        Match.findAllContainingPlayer(req.user._id, function (err, matches) {
-            if (err) { return reportUnknownError(err, res); }
-            res.json({ message: "All Matches", matches: matches});
-        });
+        if (req.query.current == "true") {
+            Match.findAllActiveContainingPlayer(req.user._id, function (err, matches) {
+                if (err) { return reportUnknownError(err, res); }
+                res.json({ message: "Active Matches", matches: matches});
+            });
+        } else {
+            Match.findAllContainingPlayer(req.user._id, function (err, matches) {
+                if (err) { return reportUnknownError(err, res); }
+                res.json({ message: "All Matches", matches: matches});
+            });
+        }
     };
     self.show = function (req, res)
     {
