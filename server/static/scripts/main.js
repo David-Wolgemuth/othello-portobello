@@ -2,21 +2,27 @@
 var othelloModule = angular.module("othelloApp", ["ngRoute", "ngHamburger"])
 .factory("authenticationFactory", [
     "$q", "$http",
-    AuthenticationFactory
+    require("./factories/authentication-factory")
 ])
 .factory("userFactory", [
     "$q", "$http",
-    UserFactory
+    require("./factories/user-factory")
 ])
 .factory("matchFactory", [
     "$q", "$http", "userFactory",
-    MatchFactory
+    require("./factories/match-factory")
 ])
 .controller("sidebarController", [
     "authenticationFactory", "userFactory", "matchFactory", 
-    SideBarController
+    require("./controllers/sidebar-controller")
 ])
+// .controller("pixiController", [
+//     "$window", "$scope",
+//     require("./controllers/pixi-controller")
+// ])
 .controller("mainController", [
     "authenticationFactory", "userFactory", "matchFactory", "$document", "$scope", 
-    MainController
+    require("./controllers/main-controller")
 ]);
+
+require("./directives.js")(othelloModule);

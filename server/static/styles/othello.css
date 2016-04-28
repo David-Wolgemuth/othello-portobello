@@ -1,0 +1,15 @@
+
+hml, body, div, canvas, pixi {
+	margin: 0;
+	padding: 0;
+}
+
+pixi {
+	position: fixed;
+	bottom: 0;
+}
+
+canvas, pixi {
+	margin: 0 auto;
+	font-size: 0;
+}

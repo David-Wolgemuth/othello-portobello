@@ -5,19 +5,25 @@
   "main": "othello.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node app.js"
+    "start": "browserify server/static/scripts/main.js -o server/static/scripts/bundle.js; node app.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.15.0",
+    "browserify": "^13.0.0",
     "ejs": "^2.4.1",
     "express": "^4.13.4",
     "frisby": "^0.8.5",
+    "gulp-util": "^3.0.7",
     "minimist": "^1.2.0",
     "mongoose": "^4.4.8",
     "request": "^2.69.0",
-    "socket.io": "^1.4.5"
+    "socket.io": "^1.4.5",
+    "vinyl-source-stream": "^1.1.0"
+  },
+  "devDependencies": {
+    "gulp-nodemon": "^2.0.6"
   }
 }

@@ -1,11 +1,13 @@
 
+module.exports = AuthenticationFactory;
+
 function AuthenticationFactory ($q, $http)
 {
     var factory = {};
     factory.token = null;
 
     factory.onLogin = [];
-
+    
     factory.getLoginStatus = function () 
     {
         var deferred = $q.defer();

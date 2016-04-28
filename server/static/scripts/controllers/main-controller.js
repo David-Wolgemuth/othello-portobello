@@ -1,4 +1,6 @@
 
+module.exports = MainController;
+
 function MainController (Auth, User, Match, $document, $scope)
 {
     var self = this;

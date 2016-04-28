@@ -1,4 +1,8 @@
 
+module.exports = MatchFactory;
+
+// console.log("Hello");
+
 function MatchFactory ($q, $http, User)
 {
     var factory = {};

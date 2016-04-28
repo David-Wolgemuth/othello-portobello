@@ -1,4 +1,6 @@
 
+module.exports = SideBarController;
+
 function SideBarController (Auth, User, Match)
 {
     var self = this;

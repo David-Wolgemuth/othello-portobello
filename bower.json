@@ -19,6 +19,7 @@
     "angular": "^1.5.5",
     "angular-route": "^1.5.5",
     "angular-hamburger-toggle": "^0.2.0",
-    "bootstrap": "^3.3.6"
+    "bootstrap": "^3.3.6",
+    "pixi.js": "pixi#^3.0.11"
   }
 }

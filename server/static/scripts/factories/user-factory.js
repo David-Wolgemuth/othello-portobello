@@ -1,4 +1,6 @@
 
+module.exports = UserFactory;
+
 function UserFactory ($q, $http)
 {
     var factory = {};
@@ -32,7 +34,6 @@ function UserFactory ($q, $http)
                 factory.users = res.data.users;
                 factory.getFriends()
                 .then(function (friends) {
-                    console.log("Friends:", friends);
                     mapUsersAsFriends(friends);
                     deferred.resolve(factory.users);
                 })
