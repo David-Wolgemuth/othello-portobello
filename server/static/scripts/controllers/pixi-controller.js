@@ -1,6 +1,8 @@
 
 module.exports = PixiController;
 
+var globals = require("../globals.js");
+
 function PixiController ($window, $scope)
 {
     // You can use either `new PIXI.WebGLRenderer`, `new PIXI.CanvasRenderer`, or `PIXI.autoDetectRenderer`
@@ -12,9 +14,11 @@ function PixiController ($window, $scope)
 
     var GameSetup = require("../game/game-setup.js");
     var game = new GameSetup(canvas[0]);
-    game.start();
-
-    angular.element($window).bind("resize load", function () {
+    angular.element($window).bind("load", function () {
+        resize();
+        game.start();
+    });
+    angular.element($window).bind("resize", function () {
         resize();
     });
     function resize ()
@@ -25,21 +29,16 @@ function PixiController ($window, $scope)
 
         var hamburger = 36;
 
-        var w;
+        var d;
         if (width < height - hamburger) {
-            w = width;
+            d = width;
             pixiElement.css("left", 0);
         } else {
-            w = height - hamburger;
-            var x = (width - (w)) / 2;
+            d = height - hamburger;
+            var x = (width - (d)) / 2;
             pixiElement.css("left", x + "px");
         }
-        game.renderer.resize(w, w);
-
-        // var scale = w / game.WIDTH;
-        // var stage = game.stage;
-        // stage.scale.x = scale; stage.scale.y = stage;
-        // console.log(stage);
+        game.resize(d);
     }
 
     

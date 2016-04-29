@@ -17,7 +17,6 @@ function Globals()
         white: 0xEFEEE9
     };
     self.textures = null;
-
     var loaded = false;
     self.load = function ()
     {
@@ -26,9 +25,9 @@ function Globals()
                 return resolve();
             }
             PIXI.loader
-            .add("mushroom", "images/mushroom-tile.png")
+            .add("mushroomRed", "images/mushroom-tile-red.png")
+            .add("mushroomBlue", "images/mushroom-tile-blue.png")
             .load(function (loader, resources) {
-                console.log("Loaded:", loader, resources);
                 self.textures = resources;
                 resolve();
             });

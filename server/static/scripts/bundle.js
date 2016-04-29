@@ -61,6 +61,8 @@ function MainController (Auth, User, Match, $document, $scope)
 
 module.exports = PixiController;
 
+var globals = require("../globals.js");
+
 function PixiController ($window, $scope)
 {
     // You can use either `new PIXI.WebGLRenderer`, `new PIXI.CanvasRenderer`, or `PIXI.autoDetectRenderer`
@@ -72,9 +74,11 @@ function PixiController ($window, $scope)
 
     var GameSetup = require("../game/game-setup.js");
     var game = new GameSetup(canvas[0]);
-    game.start();
-
-    angular.element($window).bind("resize load", function () {
+    angular.element($window).bind("load", function () {
+        resize();
+        game.start();
+    });
+    angular.element($window).bind("resize", function () {
         resize();
     });
     function resize ()
@@ -85,27 +89,22 @@ function PixiController ($window, $scope)
 
         var hamburger = 36;
 
-        var w;
+        var d;
         if (width < height - hamburger) {
-            w = width;
+            d = width;
             pixiElement.css("left", 0);
         } else {
-            w = height - hamburger;
-            var x = (width - (w)) / 2;
+            d = height - hamburger;
+            var x = (width - (d)) / 2;
             pixiElement.css("left", x + "px");
         }
-        game.renderer.resize(w, w);
-
-        // var scale = w / game.WIDTH;
-        // var stage = game.stage;
-        // stage.scale.x = scale; stage.scale.y = stage;
-        // console.log(stage);
+        game.resize(d);
     }
 
     
 }
 
-},{"../game/game-setup.js":8}],3:[function(require,module,exports){
+},{"../game/game-setup.js":9,"../globals.js":10}],3:[function(require,module,exports){
 
 module.exports = SideBarController;
 
@@ -442,63 +441,203 @@ function UserFactory ($q, $http)
 }
 },{}],8:[function(require,module,exports){
 
+var globals = require("../globals.js");
+
+module.exports = Board;
+
+function Board (game)
+{
+    var self = this;
+    self.game = game;
+    self.container = new PIXI.Container();
+
+    self.grid = [];
+
+    makeGrid();
+    addGridToContainer();
+
+    self.set = function (grid)
+    {
+        if (!self.grid || !grid) { 
+            console.log("Upgrade Grid Failed");
+            return;
+        }
+        eachGridTile(function (tile) {
+           var player = grid[tile.row][tile.column]; 
+           tile.mushroom.flip(player);
+        });
+    };
+
+    function eachGridTile (callback)
+    {
+        for (var row = 0; row < self.grid.length; row++) {
+            for (var column = 0; column < self.grid[row].length; column++) {
+                callback(self.grid[row][column], self.grid.tileDiameter);
+            }
+        }
+    }
+
+    function makeGrid ()
+    {
+        self.grid.tileDiameter = globals.width / 8;
+
+        for (var row = 0; row < 8; row++) {
+            self.grid.push([]);
+
+            for (var column = 0; column < 8; column++) {
+                var diameter = self.grid.tileDiameter;
+
+                var x = diameter * row;
+                var y = diameter * column;
+
+                var tile = { x: x, y: y, row: row, column: column };
+                
+                var player = 0;
+                tile.mushroom = new Mushroom(tile, diameter, game);
+                self.grid[row].push(tile);
+            }
+        }
+    }
+
+    function addGridToContainer ()
+    {
+        var graphics = new PIXI.Graphics();
+        var mushrooms = new PIXI.Container();
+
+        graphics.beginFill(globals.colors.olive);
+        graphics.lineStyle(4, globals.colors.brown);
+
+        eachGridTile(function (tile, diameter) {
+            console.log(tile.x, tile.y, diameter);
+            graphics.drawRect(tile.x, tile.y, diameter, diameter);
+            mushrooms.addChild(tile.mushroom.sprite);
+        });
+
+        self.container.addChild(graphics);
+        self.container.addChild(mushrooms);
+    }    
+}
+
+function Mushroom (tile, diameter, game)
+{
+    var self = this;
+    self.player = 0;
+    self.game = game;
+    self.sprite = new PIXI.Sprite();
+    setSprite(self.sprite, tile);
+    
+    self.flip = function (player)
+    {
+        var texture = getTextureForPlayer(player);
+        var endRotation = (player === self.game.player) ? 2 * Math.PI : Math.PI;
+        var prev = self.player;
+        self.player = player;
+
+        if (!prev || prev === player) {  // First Time Placed or Same Player, Should Not Rotate
+            setFinal();
+            self.game.render();
+        } else {
+            requestAnimationFrame(rotate);
+        }
+
+        function setFinal ()
+        {
+            if (endRotation == 2 * Math.PI) {
+                endRotation = 0;
+            }
+            self.sprite.rotation = endRotation;
+            self.sprite.texture = texture;
+        }
+        function rotate ()
+        {
+            if (self.sprite.rotation < endRotation) {
+                self.sprite.rotation += 0.08;
+                requestAnimationFrame(rotate);
+            } else {
+                setFinal();
+            }
+            self.game.render();
+        }
+    };
+
+    function setSprite(sprite, tile) {
+        sprite.anchor = new PIXI.Point(0.5, 0.5);  // Allow it to rotate around center
+
+        sprite.width = diameter;
+        sprite.height = diameter;
+
+        sprite.position.x = tile.x + (diameter * 0.5); // Make up for changed anchor
+        sprite.position.y = tile.y + (diameter * 0.5);
+
+        sprite.interactive = true;
+        sprite.on('mouseup', flip);
+        function flip ()
+        {
+            var player = (self.player === 2) ? 1 : 2;
+            self.flip(player);
+        }
+    }
+
+    function getTextureForPlayer(player)
+    {
+        switch (player) {
+            case 1: 
+                return globals.textures.mushroomRed.texture;
+            case 2: 
+                return globals.textures.mushroomBlue.texture;
+            default:
+                console.log("Invalid Player For Flip");
+                return null;
+        }
+    }
+}
+
+
+},{"../globals.js":10}],9:[function(require,module,exports){
+
 module.exports = GameSetup;
 
 var globals = require("../globals.js");
 var colors = globals.colors;
+var Board = require("./game-board.js");
 
 function GameSetup (canvas)
 {
     var self = this;
-    // self.WIDTH = WIDTH;
     self.renderer = new PIXI.autoDetectRenderer(globals.width, globals.width, { view: canvas, transparent: true });
     self.stage = new PIXI.Container();
     self.resources = null;
 
+    self.player = 1;  // Temp for Test
+
+    self.board = null;
+
+    self.resize = function (d)
+    {
+        self.renderer.resize(d, d);
+        var scale = d / globals.width;
+        self.stage.scale.x = scale; self.stage.scale.y = scale;
+    };
     self.start = function ()
     {
         self.backgroundColor = colors.white;
         globals.load()
         .then(function() {
-            var board = self.makeBoard();
-            self.stage.addChild(board);
-            self.renderer.render(self.stage);
+            var board = new Board(self);
+            console.log(board);
+            console.log(self.renderer);
+            self.stage.addChild(board.container);
+            self.render();
         });
     };
-    self.makeBoard = function ()
+    self.render = function ()
     {
-        var grid = new PIXI.Container();
-        var mushrooms = new PIXI.Container();
-
-        var graphics = new PIXI.Graphics();
-        graphics.beginFill(colors.olive);
-        graphics.lineStyle(4, colors.brown);
-        var d = globals.width / 8;
-        for (var i = 0; i < 8; i++) {
-            for (var j = 0; j < 8; j++) {
-                var x = d * i;
-                var y = d * j;
-                graphics.drawRect(x, y, d, d);
-                var mushroom = self.makeMushroom(x, y, d);
-                mushrooms.addChild(mushroom);
-            }
-        }
-        grid.addChild(graphics);
-        grid.addChild(mushrooms);
-        return grid;
-    };
-    self.makeMushroom = function (x, y, d)
-    {
-        var mushroom = new PIXI.Sprite(globals.textures.mushroom.texture);
-        mushroom.width = d;
-        mushroom.height = d;
-        mushroom.position.x = x;
-        mushroom.position.y = y;
-        return mushroom;
-    };
+        self.renderer.render(self.stage);
+    }
 }
 
-},{"../globals.js":9}],9:[function(require,module,exports){
+
+},{"../globals.js":10,"./game-board.js":8}],10:[function(require,module,exports){
 
 module.exports = new Globals();
 function Globals()
@@ -518,7 +657,6 @@ function Globals()
         white: 0xEFEEE9
     };
     self.textures = null;
-
     var loaded = false;
     self.load = function ()
     {
@@ -527,9 +665,9 @@ function Globals()
                 return resolve();
             }
             PIXI.loader
-            .add("mushroom", "images/mushroom-tile.png")
+            .add("mushroomRed", "images/mushroom-tile-red.png")
+            .add("mushroomBlue", "images/mushroom-tile-blue.png")
             .load(function (loader, resources) {
-                console.log("Loaded:", loader, resources);
                 self.textures = resources;
                 resolve();
             });
@@ -538,7 +676,7 @@ function Globals()
     };
 }
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 
 var othelloModule = angular.module("othelloApp", ["ngRoute", "ngHamburger"])
 .factory("authenticationFactory", [
@@ -568,4 +706,4 @@ var othelloModule = angular.module("othelloApp", ["ngRoute", "ngHamburger"])
 
 require("./directives.js")(othelloModule);
 
-},{"./controllers/main-controller":1,"./controllers/sidebar-controller":3,"./directives.js":4,"./factories/authentication-factory":5,"./factories/match-factory":6,"./factories/user-factory":7}]},{},[10]);
+},{"./controllers/main-controller":1,"./controllers/sidebar-controller":3,"./directives.js":4,"./factories/authentication-factory":5,"./factories/match-factory":6,"./factories/user-factory":7}]},{},[11]);
