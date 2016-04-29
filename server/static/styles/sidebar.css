@@ -1,46 +1,55 @@
 
 .material-design-hamburger {
-  margin-top: 4px;
-  margin-left: -36px;
+    margin-top: 4px;
+    margin-left: -36px;
 }
 
 .sidenav {
-  width: 0;
-  overflow-y: scroll;
-  overflow-x: hidden;
-  position: fixed;
-  left: 0;
-  top: 36px;
-  bottom: 0;
-  transition: all 0.2s ease-in-out;
-  -webkit-transition: all 0.2s ease-in-out;
-   box-shadow: 0 8px 17px rgba(0,0,0,.2);
-  -webkit-box-shadow: 0 8px 17px rgba(0,0,0,.2);
-  background: #fff;
-  z-index: 10;
+    width: 0;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    position: fixed;
+    left: 0;
+    top: 36px;
+    bottom: 0;
+    transition: all 0.2s ease-in-out;
+    -webkit-transition: all 0.2s ease-in-out;
+    box-shadow: 0 8px 17px rgba(0,0,0,.2);
+    -webkit-box-shadow: 0 8px 17px rgba(0,0,0,.2);
+    /*background: #fff;*/
+    z-index: 10;
 }
 
 .sidenav.open {
-  width: 300px;
+    width: 300px;
+}
+
+.nav-pills > li > a {
+    color: #9B7E5A;
+}
+
+.nav-pills > li.active > a {
+    background-color: #A29380;
+    color: #EFEEE9;
 }
 
 .rotated-arrow {
-  -webkit-transform: rotate(-90deg);
+    -webkit-transform: rotate(-90deg);
 }
 .non-rotated-arrow {
-  -webkit-transform: rotate(0deg);
+    -webkit-transform: rotate(0deg);
 }
 .rotated-arrow, .non-rotated-arrow {
-  /*width:10px;*/
-  display: inline-block;
-  -webkit-transition: 300ms ease all;
-  -moz-transition: 300ms ease all;
-  -o-transition: 300ms ease all;
-  transition: 300ms ease all;
+    background-color: transparent;
+    display: inline-block;
+    -webkit-transition: 300ms ease all;
+    -moz-transition: 300ms ease all;
+    -o-transition: 300ms ease all;
+    transition: 300ms ease all;
 }
 
 .small-profile-image {
-  border-radius: 50%;
-  margin-right: 4px;
+    border-radius: 50%;
+    margin-right: 4px;
 }
 

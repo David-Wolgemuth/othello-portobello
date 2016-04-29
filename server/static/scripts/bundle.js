@@ -67,84 +67,45 @@ function PixiController ($window, $scope)
     // which will try to choose the best renderer for the environment you are in.
 
     var canvas = angular.element(document.querySelector("#pixi-canvas"));
-    var pixi = angular.element(canvas.parent());
-    console.log(pixi);
-    var renderer = new PIXI.autoDetectRenderer(800, 800, { view: canvas[0] });
+    var pixiElement = angular.element(canvas.parent());
+    console.log(pixiElement);
 
-    // The renderer will create a canvas element for you that you can then insert into the DOM.
+    var GameSetup = require("../game/game-setup.js");
+    var game = new GameSetup(canvas[0]);
+    game.start();
 
-    // You need to create a root container that will hold the scene you want to draw.
-    var stage = new PIXI.Container();
-
-    // Declare a global variable for our sprite so that the animate function can access it.
-    var bunny = null;
-
-    var graphics = new PIXI.Graphics();
-    graphics.beginFill(0xFFFF00);
-
-    // set the line style to have a width of 5 and set the color to red
-    graphics.lineStyle(5, 0xFF0000);
-
-    // draw a rectangle
-    graphics.drawRect(0, 0, 300, 200);
-
-    stage.addChild(graphics);
-
-
-
+    angular.element($window).bind("resize load", function () {
+        resize();
+    });
     function resize ()
     {
         console.log("Resizing");
         var width = $window.innerWidth;
         var height = $window.innerHeight;
+
         var hamburger = 36;
+
+        var w;
         if (width < height - hamburger) {
-            renderer.resize(width, width);
-            pixi.css("left", 0);
+            w = width;
+            pixiElement.css("left", 0);
         } else {
-            var w = height - hamburger;
+            w = height - hamburger;
             var x = (width - (w)) / 2;
-            renderer.resize(w, w);
-            pixi.css("left", x + "px");
+            pixiElement.css("left", x + "px");
         }
+        game.renderer.resize(w, w);
+
+        // var scale = w / game.WIDTH;
+        // var stage = game.stage;
+        // stage.scale.x = scale; stage.scale.y = stage;
+        // console.log(stage);
     }
-    resize();
-    angular.element($window).bind('resize', function () {
-        resize();
-    });
 
-    // load the texture we need
-    PIXI.loader.add('bunny', 'images/easy_ai.png').load(function (loader, resources) {
-        // This creates a texture from a 'bunny.png' image.
-        bunny = new PIXI.Sprite(resources.bunny.texture);
-
-        // Setup the position and scale of the bunny
-        bunny.position.x = 400;
-        bunny.position.y = 300;
-
-        bunny.scale.x = 2;
-        bunny.scale.y = 2;
-
-        // Add the bunny to the scene we are building.
-        stage.addChild(bunny);
-
-        // kick off the animation loop (defined below)
-        animate();
-    });
-
-    function animate() {
-        // start the timer for the next animation loop
-        requestAnimationFrame(animate);
-
-        // each frame we spin the bunny around a bit
-        bunny.rotation += 0.01;
-
-        // this is the main render call that makes pixi draw your container and its children.
-        renderer.render(stage);
-    }
+    
 }
 
-},{}],3:[function(require,module,exports){
+},{"../game/game-setup.js":8}],3:[function(require,module,exports){
 
 module.exports = SideBarController;
 
@@ -481,6 +442,104 @@ function UserFactory ($q, $http)
 }
 },{}],8:[function(require,module,exports){
 
+module.exports = GameSetup;
+
+var globals = require("../globals.js");
+var colors = globals.colors;
+
+function GameSetup (canvas)
+{
+    var self = this;
+    // self.WIDTH = WIDTH;
+    self.renderer = new PIXI.autoDetectRenderer(globals.width, globals.width, { view: canvas, transparent: true });
+    self.stage = new PIXI.Container();
+    self.resources = null;
+
+    self.start = function ()
+    {
+        self.backgroundColor = colors.white;
+        globals.load()
+        .then(function() {
+            var board = self.makeBoard();
+            self.stage.addChild(board);
+            self.renderer.render(self.stage);
+        });
+    };
+    self.makeBoard = function ()
+    {
+        var grid = new PIXI.Container();
+        var mushrooms = new PIXI.Container();
+
+        var graphics = new PIXI.Graphics();
+        graphics.beginFill(colors.olive);
+        graphics.lineStyle(4, colors.brown);
+        var d = globals.width / 8;
+        for (var i = 0; i < 8; i++) {
+            for (var j = 0; j < 8; j++) {
+                var x = d * i;
+                var y = d * j;
+                graphics.drawRect(x, y, d, d);
+                var mushroom = self.makeMushroom(x, y, d);
+                mushrooms.addChild(mushroom);
+            }
+        }
+        grid.addChild(graphics);
+        grid.addChild(mushrooms);
+        return grid;
+    };
+    self.makeMushroom = function (x, y, d)
+    {
+        var mushroom = new PIXI.Sprite(globals.textures.mushroom.texture);
+        mushroom.width = d;
+        mushroom.height = d;
+        mushroom.position.x = x;
+        mushroom.position.y = y;
+        return mushroom;
+    };
+}
+
+},{"../globals.js":9}],9:[function(require,module,exports){
+
+module.exports = new Globals();
+function Globals()
+{
+    var self = this;
+    self.width = 8 * 120;
+    self.colors = {
+        olive: 0xA0AF99,
+        brown: 0x847360,
+
+        // olive: 0xC5C7B3,
+        // brown: 0xA29380,
+        
+
+        brown2:0x9B7E5A,
+        tan: 0xD9CCBA,
+        white: 0xEFEEE9
+    };
+    self.textures = null;
+
+    var loaded = false;
+    self.load = function ()
+    {
+        var promise = new Promise(function (resolve, reject) {
+            if (loaded) {
+                return resolve();
+            }
+            PIXI.loader
+            .add("mushroom", "images/mushroom-tile.png")
+            .load(function (loader, resources) {
+                console.log("Loaded:", loader, resources);
+                self.textures = resources;
+                resolve();
+            });
+        });
+        return promise;
+    };
+}
+
+},{}],10:[function(require,module,exports){
+
 var othelloModule = angular.module("othelloApp", ["ngRoute", "ngHamburger"])
 .factory("authenticationFactory", [
     "$q", "$http",
@@ -509,4 +568,4 @@ var othelloModule = angular.module("othelloApp", ["ngRoute", "ngHamburger"])
 
 require("./directives.js")(othelloModule);
 
-},{"./controllers/main-controller":1,"./controllers/sidebar-controller":3,"./directives.js":4,"./factories/authentication-factory":5,"./factories/match-factory":6,"./factories/user-factory":7}]},{},[8]);
+},{"./controllers/main-controller":1,"./controllers/sidebar-controller":3,"./directives.js":4,"./factories/authentication-factory":5,"./factories/match-factory":6,"./factories/user-factory":7}]},{},[10]);

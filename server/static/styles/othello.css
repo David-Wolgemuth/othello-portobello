@@ -2,6 +2,7 @@
 hml, body, div, canvas, pixi {
 	margin: 0;
 	padding: 0;
+	background-color: #EFEEE9;
 }
 
 pixi {
