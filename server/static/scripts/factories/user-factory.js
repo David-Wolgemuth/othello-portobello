@@ -1,12 +1,19 @@
 
 module.exports = UserFactory;
 
-function UserFactory ($q, $http)
+function UserFactory ($q, $http, Auth, Socket)
 {
     var factory = {};
     factory.user = null;
     factory.users = [];
 
+    factory.subscribe = function (callback)
+    {
+        if (!factory.user) {
+            throw "Wait Until Login To Subscribe To User";
+        }
+        Socket.subscribe({ type: "user-all", id: factory.user._id }, callback);
+    };
     factory.getUser = function ()
     {
         var deferred = $q.defer();
@@ -85,7 +92,7 @@ function UserFactory ($q, $http)
 
         return deferred.promise;
     };
-    factory.createUserIfNotExists = function (user)
+    factory.createUserIfNotExists = function ()
     {
         var deferred = $q.defer();
 

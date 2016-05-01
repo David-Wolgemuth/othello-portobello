@@ -3,7 +3,7 @@ module.exports = MatchFactory;
 
 // console.log("Hello");
 
-function MatchFactory ($q, $http, User)
+function MatchFactory ($q, $http, User, Socket)
 {
     var factory = {};
     factory.matches = [];
@@ -11,7 +11,6 @@ function MatchFactory ($q, $http, User)
 
     var callbacks = {
         switched: [],
-        incoming: [],
         shouldMakeMove: [],
         refresh: []
     };
@@ -20,6 +19,20 @@ function MatchFactory ($q, $http, User)
         if (typeof(callback) === "function" && callbacks[listener]) {
             callbacks[listener].push(callback);
         }
+    };
+    factory.unsubscribe = function (id)
+    {
+        if (!id && factory.match) {
+            id = factory.match._id;
+        }
+        Socket.unsubscribe(id);
+    };
+    factory.subscribe = function (callback)
+    {
+        if (!factory.match) {
+            throw "No Match To Subscribe To";
+        }
+        Socket.subscribe({ type: "match", id: factory.match._id }, callback);
     };
     factory.refresh = function ()
     {
@@ -90,7 +103,6 @@ function MatchFactory ($q, $http, User)
 
         for (var i = 0; i < callbacks.shouldMakeMove.length; i++) {
             var shouldMakeMove = callbacks.shouldMakeMove[i]();
-            console.log("i:", i, "shouldMakeMove:", shouldMakeMove);
             if (!shouldMakeMove) {
                 deferred.reject("Blocked By Controller");
                 return deferred.promise;  // Allow Other Controllers To Block Move
@@ -102,7 +114,6 @@ function MatchFactory ($q, $http, User)
             console.log(res);
             var match = res.data.match;
             if (match) {
-                console.log("Success MothaFucka!");
                 factory.match = match;
                 deferred.resolve(match);
             } else {

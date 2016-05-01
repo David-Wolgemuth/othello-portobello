@@ -6,7 +6,7 @@ function SideBarController (Auth, User, Match)
     var self = this;
     self.open = false;
 
-    Auth.onLogin.push(function () {
+    Auth.onLogin(function () {
         self.update();
     });
     Match.on("shouldMakeMove", function () {

@@ -417,10 +417,14 @@ function PixiController ($window, $scope, Match)
             });
         });
         Match.on("switched", function (match) {
+            if (self.game.match) {
+                var id = self.game.match._id;
+                if (id) { Match.unsubscribe(id); }
+            }
             self.game.switchMatch(match);
-        });
-        Match.on("incoming", function (match) {
-            self.game.updateMatch(match);
+            Match.subscribe(function (match) {
+                self.game.updateMatch(match);
+            });
         });
         Match.on("refresh", function (match) {
             if (match) {
@@ -449,7 +453,7 @@ function PixiController ($window, $scope, Match)
     }
 }
 
-},{"../game/game.js":10,"../globals.js":11}],4:[function(require,module,exports){
+},{"../game/game.js":11,"../globals.js":12}],4:[function(require,module,exports){
 
 module.exports = SideBarController;
 
@@ -458,7 +462,7 @@ function SideBarController (Auth, User, Match)
     var self = this;
     self.open = false;
 
-    Auth.onLogin.push(function () {
+    Auth.onLogin(function () {
         self.update();
     });
     Match.on("shouldMakeMove", function () {
@@ -505,7 +509,16 @@ function AuthenticationFactory ($q, $http)
     var factory = {};
     factory.token = null;
 
-    factory.onLogin = [];
+    var callbacks = {
+        login: []
+    };
+
+    factory.onLogin = function (callback)
+    {
+        if (typeof(callback) === "function") {
+            callbacks.login.push(callback);
+        }
+    };
     
     factory.getLoginStatus = function () 
     {
@@ -528,7 +541,7 @@ function AuthenticationFactory ($q, $http)
                 factory.setToken(response.authResponse.accessToken);
                 factory.getUser()
                 .then(function () {
-                    factory.onLogin.forEach(function (callback) {
+                    callbacks.login.forEach(function (callback) {
                         callback();
                     });
                     deferred.resolve();
@@ -610,7 +623,7 @@ module.exports = MatchFactory;
 
 // console.log("Hello");
 
-function MatchFactory ($q, $http, User)
+function MatchFactory ($q, $http, User, Socket)
 {
     var factory = {};
     factory.matches = [];
@@ -618,7 +631,6 @@ function MatchFactory ($q, $http, User)
 
     var callbacks = {
         switched: [],
-        incoming: [],
         shouldMakeMove: [],
         refresh: []
     };
@@ -627,6 +639,20 @@ function MatchFactory ($q, $http, User)
         if (typeof(callback) === "function" && callbacks[listener]) {
             callbacks[listener].push(callback);
         }
+    };
+    factory.unsubscribe = function (id)
+    {
+        if (!id && factory.match) {
+            id = factory.match._id;
+        }
+        Socket.unsubscribe(id);
+    };
+    factory.subscribe = function (callback)
+    {
+        if (!factory.match) {
+            throw "No Match To Subscribe To";
+        }
+        Socket.subscribe({ type: "match", id: factory.match._id }, callback);
     };
     factory.refresh = function ()
     {
@@ -697,7 +723,6 @@ function MatchFactory ($q, $http, User)
 
         for (var i = 0; i < callbacks.shouldMakeMove.length; i++) {
             var shouldMakeMove = callbacks.shouldMakeMove[i]();
-            console.log("i:", i, "shouldMakeMove:", shouldMakeMove);
             if (!shouldMakeMove) {
                 deferred.reject("Blocked By Controller");
                 return deferred.promise;  // Allow Other Controllers To Block Move
@@ -709,7 +734,6 @@ function MatchFactory ($q, $http, User)
             console.log(res);
             var match = res.data.match;
             if (match) {
-                console.log("Success MothaFucka!");
                 factory.match = match;
                 deferred.resolve(match);
             } else {
@@ -762,14 +786,126 @@ function MatchFactory ($q, $http, User)
 
 },{}],8:[function(require,module,exports){
 
+module.exports = SocketFactory;
+
+function SocketFactory (Auth)
+{
+    var socket;
+    var subscriptions = {};
+    var token;
+    var factory = {};
+    Auth.onLogin(function () {
+        init();
+    });
+    
+    factory.subscribe = function (sub, callback)
+    {
+        if (!sub.type || !sub.id) {
+            throw "Invalid Subscription:" + sub;
+        }
+        if (typeof(callback) != "function") {
+            throw "Invalid Function:" + callback;
+        }
+        if (subscriptions[sub.id]) {
+            subscriptions[sub.id].callbacks.push(callback);
+        } else {
+            subscriptions[sub.id] = { id: sub.id, type: sub.type, callbacks: [callback] };
+            emit("subscribe", roomFromObjectId(sub.id));
+        }
+    };
+    factory.unsubscribe = function (id)
+    {
+        var room = roomFromObjectId(id);
+        if (room) {
+            socket.emit("unsubscribe", room);
+            delete subscriptions[id];
+        }
+    };
+    function init ()
+    {
+        if (!Auth.token) {
+            throw "No Token, Should Not Initialize Socket"
+        }
+        var handshake = "x-auth-token=" + Auth.token;
+        socket = io.connect("http://localhost:5000", { query: handshake });
+        socket.on("connect", function (data) {
+            console.log("Successful Socket Connection:", data);
+            resubscribeAll();
+        });
+        socket.on("message", function (data) {
+            console.log("Message From Server:", data);
+        });
+        socket.on("match", function (data) {
+            console.log("Incoming Subscribed Match:", data);
+            match = data.match;
+            runAllCallbacks(match._id, match);
+        });
+        socket.on("user-all", function (data) {
+            console.log("Incoming User All:", data);
+            match = data.match;
+            if (match) {
+                runAllCallbacks(match._id, match);
+            }
+        });
+    }
+    function emit (message, data)
+    {
+        if (token) {
+            data.token = token;
+            socket.emit(message, data);
+        }
+    }
+    function runAllCallbacks (id, obj)
+    {
+        var sub = subscriptions[id];
+        if (sub) {
+            for (var i = 0; i < sub.callbacks.length; i++) {
+                sub.callbacks[i](obj);
+            }
+        }
+    }
+    function roomFromObjectId (id)
+    {
+        if (subscriptions[id]) {
+            return { id: id, type: subscriptions[id].type };
+        }
+        return null;
+    }
+    function resubscribeAll ()
+    {
+        token = Auth.token;
+        if (!token) { 
+            console.log("Not Logged In, Cannot Subscribe");
+            return;
+        }
+        for (var id in subscriptions) {
+            var room = roomFromObjectId(id);
+            if (room) {
+                emit("subscribe", room);
+            }
+        }
+    }
+
+    return factory;
+}
+
+},{}],9:[function(require,module,exports){
+
 module.exports = UserFactory;
 
-function UserFactory ($q, $http)
+function UserFactory ($q, $http, Auth, Socket)
 {
     var factory = {};
     factory.user = null;
     factory.users = [];
 
+    factory.subscribe = function (callback)
+    {
+        if (!factory.user) {
+            throw "Wait Until Login To Subscribe To User";
+        }
+        Socket.subscribe({ type: "user-all", id: factory.user._id }, callback);
+    };
     factory.getUser = function ()
     {
         var deferred = $q.defer();
@@ -848,7 +984,7 @@ function UserFactory ($q, $http)
 
         return deferred.promise;
     };
-    factory.createUserIfNotExists = function (user)
+    factory.createUserIfNotExists = function ()
     {
         var deferred = $q.defer();
 
@@ -888,7 +1024,7 @@ function UserFactory ($q, $http)
 
     return factory;
 }
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 
 var globals = require("../globals.js");
 
@@ -995,7 +1131,6 @@ function Mushroom (tile, diameter, game)
         } else if (prev === player) {
             return;
         } else {
-            console.log("Rotating:", prev, self.tile);
             requestAnimationFrame(rotate);
         }
     };
@@ -1014,7 +1149,6 @@ function Mushroom (tile, diameter, game)
             maxRotation = Math.PI;
         else 
             maxRotation = 2 * Math.PI;
-        console.log(self.sprite.rotation, maxRotation);
         if (self.sprite.rotation < maxRotation) {
             self.sprite.rotation += 0.08;
             self.game.render();
@@ -1056,7 +1190,7 @@ function Mushroom (tile, diameter, game)
 }
 
 
-},{"../globals.js":11}],10:[function(require,module,exports){
+},{"../globals.js":12}],11:[function(require,module,exports){
 
 module.exports = Game;
 
@@ -1154,7 +1288,7 @@ function Game (canvas)
 }
 
 
-},{"../../../othello-logic.js":1,"../globals.js":11,"./board.js":9}],11:[function(require,module,exports){
+},{"../../../othello-logic.js":1,"../globals.js":12,"./board.js":10}],12:[function(require,module,exports){
 
 module.exports = new Globals();
 function Globals()
@@ -1194,19 +1328,23 @@ function Globals()
     };
 }
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 
 var othelloModule = angular.module("othelloApp", ["ngRoute", "ngHamburger"])
 .factory("authenticationFactory", [
     "$q", "$http",
     require("./factories/authentication-factory")
 ])
+.factory("socketFactory", [
+    "authenticationFactory",
+    require("./factories/socket-factory")
+])
 .factory("userFactory", [
-    "$q", "$http",
+    "$q", "$http", "authenticationFactory", "socketFactory",
     require("./factories/user-factory")
 ])
 .factory("matchFactory", [
-    "$q", "$http", "userFactory",
+    "$q", "$http", "userFactory", "socketFactory",
     require("./factories/match-factory")
 ])
 .controller("sidebarController", [
@@ -1224,4 +1362,4 @@ var othelloModule = angular.module("othelloApp", ["ngRoute", "ngHamburger"])
 
 require("./directives.js")(othelloModule);
 
-},{"./controllers/main-controller":2,"./controllers/pixi-controller":3,"./controllers/sidebar-controller":4,"./directives.js":5,"./factories/authentication-factory":6,"./factories/match-factory":7,"./factories/user-factory":8}]},{},[12]);
+},{"./controllers/main-controller":2,"./controllers/pixi-controller":3,"./controllers/sidebar-controller":4,"./directives.js":5,"./factories/authentication-factory":6,"./factories/match-factory":7,"./factories/socket-factory":8,"./factories/user-factory":9}]},{},[13]);

@@ -6,8 +6,10 @@ var keys = require("./keys");
 function AuthenticationConstructor() 
 {
     var self = this;
-    self.fb = {};
 
+    var cachedTokens = {};
+
+    self.fb = {};
     
     self.fb.http = function (req, res, next)
     {
@@ -24,24 +26,35 @@ function AuthenticationConstructor()
             next();
         });
     };
-    self.fb.sockets = function (socket, callback)
+    self.fb.sockets = function (socket, next)
     /*
-        callback(err, user)
+        
     */
     {
-        var handshake = socket.handshake;
-        var headers = handshake.headers;
-        var token = headers["x-auth-token"];
+        var query = socket.handshake.query;
+        var token = query["x-auth-token"];
         if (!token) {
-            return callback({ code: 403, message: "No Token"});
+            return next();
         }
-        facebookAuth(token, callback);
+
+        facebookAuth(token, function (err, user) {
+            if (err) { 
+                console.log("ERROR:", err);
+            } else {
+                socket.user = user;
+            }
+            next();
+        });
     };
     function facebookAuth(token, callback)
     /*
         callback(err, user)
     */
     {
+        if (cachedTokens[token]) {
+            return callback(null, cachedTokens[token]);
+        }
+
         var baseUrl = "https://graph.facebook.com/me";
         var params = { "fields" : "id", "access_token": token };
         var url = { url: baseUrl, qs: params, json: true };
@@ -57,6 +70,7 @@ function AuthenticationConstructor()
                         return callback({ code: 500, message: message });
                     }
                     if (user) {
+                        cachedTokens[token] = user;
                         callback(null, user);
                     } else {
                         callback(null, { fbid: body.id });

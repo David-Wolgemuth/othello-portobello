@@ -104,7 +104,6 @@ function Mushroom (tile, diameter, game)
         } else if (prev === player) {
             return;
         } else {
-            console.log("Rotating:", prev, self.tile);
             requestAnimationFrame(rotate);
         }
     };
@@ -123,7 +122,6 @@ function Mushroom (tile, diameter, game)
             maxRotation = Math.PI;
         else 
             maxRotation = 2 * Math.PI;
-        console.log(self.sprite.rotation, maxRotation);
         if (self.sprite.rotation < maxRotation) {
             self.sprite.rotation += 0.08;
             self.game.render();

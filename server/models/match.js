@@ -50,6 +50,30 @@ MatchSchema.methods.isPlayersTurn = function (pid)
         return (match.turn === 2);
     }
 };
+MatchSchema.methods.checkWinner = function ()
+{
+    var match = this;
+    var board = match.getBoard();
+    var player = match.turn;
+    var turns = Othello.getAllValidMoves(board, player).length;
+    if (!turns) {
+        var score = Othello.getCurrentScore(board);
+        if (score[0]) {  // Unplayed Tiles -> Current Player Loses
+            match.winner = (player === 1) ? 2 : 1;
+        } else {
+            if (score[1] > score[2]) {
+                match.winner = 1;
+            } else if (score[2] > score[1]) {
+                match.winner = 2;
+            } else {
+                match.winner = -1;  // Tie Game
+            }
+        }
+        return true;
+    } else {
+        return false;
+    }
+};
 MatchSchema.statics.findAllActiveContainingPlayer = function (pid, callback)
 /*
     callback(err, matches)
@@ -62,7 +86,6 @@ MatchSchema.statics.findAllActiveContainingPlayer = function (pid, callback)
             { winner: { $eq: 0 } }
         ]
     }).populate("players", "fbid name").exec(function (err, matches) {
-        console.log(matches);
         callback(err, matches);
     });
 };
@@ -75,7 +98,6 @@ MatchSchema.statics.findAllContainingPlayer = function (pid, callback)
     User.findById(pid, function (err, user) {
         if (err) { callback(err); }
         User.populate(user, "matches", function (err, user) {
-            console.log(user);
             callback(err, user.matches);
         });
     });
@@ -231,10 +253,12 @@ MatchSchema.statics.makeMove = function (matchId, move, playerId, callback)
         if (!flipped) {
             return callback("No Tiles Flipped On Turn.");
         }
-        if (match.turn == 1) { 
-            match.turn = 2 
+        if (match.checkWinner()) {
+            match.turn = 0;
+        } else if (match.turn == 1) { 
+            match.turn = 2;
         } else if (match.turn == 2) { 
-            match.turn = 1 
+            match.turn = 1;
         }
         match.save(callback);
     });
@@ -269,7 +293,11 @@ MatchSchema.statics.makeMoveAI = function (matchId, callback)
         }
         Othello.makeMove(board, move);
         match.setBoard(board);
-        match.turn = 1;
+        if (match.checkWinner()) {
+            match.turn = 0;
+        } else {
+            match.turn = 1;
+        }
         match.save(callback);
     });
 };

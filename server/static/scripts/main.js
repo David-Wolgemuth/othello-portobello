@@ -4,12 +4,16 @@ var othelloModule = angular.module("othelloApp", ["ngRoute", "ngHamburger"])
     "$q", "$http",
     require("./factories/authentication-factory")
 ])
+.factory("socketFactory", [
+    "authenticationFactory",
+    require("./factories/socket-factory")
+])
 .factory("userFactory", [
-    "$q", "$http",
+    "$q", "$http", "authenticationFactory", "socketFactory",
     require("./factories/user-factory")
 ])
 .factory("matchFactory", [
-    "$q", "$http", "userFactory",
+    "$q", "$http", "userFactory", "socketFactory",
     require("./factories/match-factory")
 ])
 .controller("sidebarController", [

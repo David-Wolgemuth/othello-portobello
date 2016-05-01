@@ -10,19 +10,13 @@ function SubPubServerConstructor()
         playerMove: "player-move",
         aiMove: "ai-move",
         forfeit: "forfeit"
-    } 
+    };
     self.init = function (server)
     {
         io = require("socket.io").listen(server);
+        io.use(authenticate);
         io.sockets.on("connection", function (socket) {
             console.log("New Connection:", socket.id);
-            authenticate(socket, function (err, user) {
-                if (err) {
-                    return socket.emit("err", err);
-                }
-                socket.user = user;
-                socket.emit("validated", user._id)
-            });
             socket.on("subscribe", function (room) { subscribe(socket, room); });
             socket.on("unsubscribe", function (room) { unsubscribe(socket, room); });
         });
@@ -42,10 +36,10 @@ function SubPubServerConstructor()
             case "match":
                 checkIfUserInMatch(socket.user, room.id, function (err, inMatch) {
                     if (err || !inMatch) {
-                        return socket.emit("err", err);
+                        return socket.emit("message", err);
                     }
                     socket.join(room.id);
-                    socket.emit("message", "Successfully Joined Match: " + room.id)
+                    socket.emit("message", "Successfully Joined Match: " + room.id);
                 });
                 break;
             case "user-all":
@@ -58,7 +52,7 @@ function SubPubServerConstructor()
     }
     function _publish(room, data)
     {
-        io.sockets.in(room.id).emit(room.type + " " + data.message, data);
+        io.sockets.in(room.id).emit(room.type, data);
     }
     function unsubscribe(socket, room)
     {

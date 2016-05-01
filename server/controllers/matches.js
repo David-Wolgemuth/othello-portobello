@@ -31,7 +31,6 @@ function MatchesConstructor ()
         } else {
             Match.findAllContainingPlayer(req.user._id, function (err, matches) {
                 if (err) { return reportUnknownError(err, res); }
-                console.log(matches);
                 res.json({ message: "All Matches", matches: matches});
             });
         }
@@ -40,7 +39,6 @@ function MatchesConstructor ()
     {
         var matchId = req.params.id;
         Match.findById(matchId, function (err, match) {
-            console.log("Before:", match);
             if (err) { return reportUnknownError(err, res); }
             if (!match) { return res.status(404).json({ message: "No Matches With Id `" + matchId + "`" }); }
             if (match.players[0].toString() != req.user._id && match.players[1].toString() != req.user._id) {
@@ -55,7 +53,6 @@ function MatchesConstructor ()
                     });
                 });
             } else {
-                console.log("After:", match);
                 res.json({ message: "Found Match", match: match });
             }
         });
@@ -107,7 +104,12 @@ function MatchesConstructor ()
         var pid = req.user._id;
         if (move) {
             Match.makeMove(matchId, move, pid, function (err, match) {
-                if (err) { return reportUnknownError(err, res); }
+                if (err) {
+                    if (typeof err === "string") {
+                        return res.status(400).json({ message: err });
+                    }
+                    return reportUnknownError(err, res);
+                }
                 res.json({ message: "Successfully Made Move", match: match });
                 subpub.publish(match.toObject(), subpub.EVENTS.playerMove);
                 if (match.ai) {

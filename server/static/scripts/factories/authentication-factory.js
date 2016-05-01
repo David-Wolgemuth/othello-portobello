@@ -6,7 +6,16 @@ function AuthenticationFactory ($q, $http)
     var factory = {};
     factory.token = null;
 
-    factory.onLogin = [];
+    var callbacks = {
+        login: []
+    };
+
+    factory.onLogin = function (callback)
+    {
+        if (typeof(callback) === "function") {
+            callbacks.login.push(callback);
+        }
+    };
     
     factory.getLoginStatus = function () 
     {
@@ -29,7 +38,7 @@ function AuthenticationFactory ($q, $http)
                 factory.setToken(response.authResponse.accessToken);
                 factory.getUser()
                 .then(function () {
-                    factory.onLogin.forEach(function (callback) {
+                    callbacks.login.forEach(function (callback) {
                         callback();
                     });
                     deferred.resolve();

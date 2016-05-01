@@ -31,10 +31,14 @@ function PixiController ($window, $scope, Match)
             });
         });
         Match.on("switched", function (match) {
+            if (self.game.match) {
+                var id = self.game.match._id;
+                if (id) { Match.unsubscribe(id); }
+            }
             self.game.switchMatch(match);
-        });
-        Match.on("incoming", function (match) {
-            self.game.updateMatch(match);
+            Match.subscribe(function (match) {
+                self.game.updateMatch(match);
+            });
         });
         Match.on("refresh", function (match) {
             if (match) {
