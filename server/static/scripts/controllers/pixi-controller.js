@@ -3,24 +3,45 @@ module.exports = PixiController;
 
 var globals = require("../globals.js");
 
-function PixiController ($window, $scope)
+function PixiController ($window, $scope, Match)
 {
-    // You can use either `new PIXI.WebGLRenderer`, `new PIXI.CanvasRenderer`, or `PIXI.autoDetectRenderer`
-    // which will try to choose the best renderer for the environment you are in.
-
     var canvas = angular.element(document.querySelector("#pixi-canvas"));
     var pixiElement = angular.element(canvas.parent());
-    console.log(pixiElement);
 
-    var GameSetup = require("../game/game-setup.js");
-    var game = new GameSetup(canvas[0]);
-    angular.element($window).bind("load", function () {
-        resize();
-        game.start();
-    });
-    angular.element($window).bind("resize", function () {
-        resize();
-    });
+    var Game = require("../game/game.js");
+    self.game = new Game(canvas[0]);
+    addListeners();
+
+    function addListeners ()
+    {
+        angular.element($window).bind("load", function () {
+            resize();
+            self.game.start();
+        });
+        angular.element($window).bind("resize", function () {
+            resize();
+        });
+        self.game.onMove(function (move) {
+            Match.makeMove(move)
+            .then(function (match) {
+                self.game.updateMatch(match);
+            })
+            .catch(function (err) {
+                console.log("Move Not Made:", err);
+            });
+        });
+        Match.on("switched", function (match) {
+            self.game.switchMatch(match);
+        });
+        Match.on("incoming", function (match) {
+            self.game.updateMatch(match);
+        });
+        Match.on("refresh", function (match) {
+            if (match) {
+                self.game.updateMatch(match);
+            }
+        });
+    }
     function resize ()
     {
         console.log("Resizing");
@@ -38,8 +59,6 @@ function PixiController ($window, $scope)
             var x = (width - (d)) / 2;
             pixiElement.css("left", x + "px");
         }
-        game.resize(d);
+        self.game.resize(d);
     }
-
-    
 }

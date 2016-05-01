@@ -9,7 +9,7 @@ module.exports = function (app)
     .directive('pixi', function () {
         return {
             template: "<canvas id='pixi-canvas'></canvas>",
-            controller: require("./controllers/pixi-controller"),
+            controller: "pixiController"
         };
     });
-}
+};

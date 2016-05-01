@@ -17,25 +17,16 @@
 	<script src="pixi.js/bin/pixi.js"></script>
 
 	<script src="scripts/bundle.js"></script>
-<!-- 
-	<script src="scripts/authentication-factory.js"></script>
-	<script src="scripts/user-factory.js"></script>
-	<script src="scripts/match-factory.js"></script>
 
-	<script src="scripts/main-controller.js"></script>
-	<script src="scripts/sidebar-controller.js"></script>
-	<script src="scripts/pixi-controller.js"></script>
-
-	<script src="scripts/main.js"></script>
-
-	<script src="scripts/directives.js"></script> -->
 </head>
 <body ng-controller="mainController as mc">
 	<sidebar></sidebar>
 	<pixi></pixi>
 
-
-	<button ng-if="mc.loggedIn == false" ng-click="mc.login()">Login</button>
+	<button ng-if="mc.loggedIn == false" ng-click="mc.login();">Login</button>
+	<button id="refresh-button" ng-click="mc.refresh();" class="btn btn-default btn-lg" aria-hidden="true">
+		<span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
+	</button>
 
 </body>
 </html>

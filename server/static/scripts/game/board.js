@@ -9,12 +9,18 @@ function Board (game)
     self.game = game;
     self.container = new PIXI.Container();
 
-    self.grid = [];
-
+    self.grid = null;
     makeGrid();
     addGridToContainer();
 
-    self.set = function (grid)
+    self.reset = function ()
+    {
+        console.log("\n\n\nRESETTING\n\n\n");
+        eachGridTile(function (tile) {
+            tile.mushroom.flip(0);
+        });
+    };
+    self.update = function (grid)
     {
         if (!self.grid || !grid) { 
             console.log("Upgrade Grid Failed");
@@ -37,6 +43,7 @@ function Board (game)
 
     function makeGrid ()
     {
+        self.grid = [];
         self.grid.tileDiameter = globals.width / 8;
 
         for (var row = 0; row < 8; row++) {
@@ -48,7 +55,7 @@ function Board (game)
                 var x = diameter * row;
                 var y = diameter * column;
 
-                var tile = { x: x, y: y, row: row, column: column };
+                var tile = { x: x, y: y, row: row, column: column, player: 0 };
                 
                 var player = 0;
                 tile.mushroom = new Mushroom(tile, diameter, game);
@@ -66,7 +73,6 @@ function Board (game)
         graphics.lineStyle(4, globals.colors.brown);
 
         eachGridTile(function (tile, diameter) {
-            console.log(tile.x, tile.y, diameter);
             graphics.drawRect(tile.x, tile.y, diameter, diameter);
             mushrooms.addChild(tile.mushroom.sprite);
         });
@@ -79,60 +85,69 @@ function Board (game)
 function Mushroom (tile, diameter, game)
 {
     var self = this;
-    self.player = 0;
     self.game = game;
+    self.tile = tile;
     self.sprite = new PIXI.Sprite();
-    setSprite(self.sprite, tile);
+    initSprite(tile);
     
+    self.orientation = 0;
+
     self.flip = function (player)
     {
-        var texture = getTextureForPlayer(player);
-        var endRotation = (player === self.game.player) ? 2 * Math.PI : Math.PI;
-        var prev = self.player;
-        self.player = player;
-
-        if (!prev || prev === player) {  // First Time Placed or Same Player, Should Not Rotate
-            setFinal();
-            self.game.render();
+        self.orientation = (player === self.game.player) ? 0 : 1;
+        
+        var prev = self.tile.player;
+        self.tile.player = player;
+        
+        if (!prev) {
+            render();
+        } else if (prev === player) {
+            return;
         } else {
+            console.log("Rotating:", prev, self.tile);
             requestAnimationFrame(rotate);
-        }
-
-        function setFinal ()
-        {
-            if (endRotation == 2 * Math.PI) {
-                endRotation = 0;
-            }
-            self.sprite.rotation = endRotation;
-            self.sprite.texture = texture;
-        }
-        function rotate ()
-        {
-            if (self.sprite.rotation < endRotation) {
-                self.sprite.rotation += 0.08;
-                requestAnimationFrame(rotate);
-            } else {
-                setFinal();
-            }
-            self.game.render();
         }
     };
 
-    function setSprite(sprite, tile) {
-        sprite.anchor = new PIXI.Point(0.5, 0.5);  // Allow it to rotate around center
+    function render ()
+    {
+        var rotation = Math.PI * self.orientation;
+        self.sprite.rotation = rotation;
+        self.sprite.texture = getTextureForPlayer(self.tile.player);
+        self.game.render();
+    }
+    function rotate ()
+    {
+        var maxRotation;
+        if (self.orientation)
+            maxRotation = Math.PI;
+        else 
+            maxRotation = 2 * Math.PI;
+        console.log(self.sprite.rotation, maxRotation);
+        if (self.sprite.rotation < maxRotation) {
+            self.sprite.rotation += 0.08;
+            self.game.render();
+            requestAnimationFrame(rotate);
+        } else {
+            render();
+        }
+    }
+    function initSprite(tile) {
+        self.sprite.anchor = new PIXI.Point(0.5, 0.5);  // Allow it to rotate around center
 
-        sprite.width = diameter;
-        sprite.height = diameter;
+        self.sprite.width = diameter;
+        self.sprite.height = diameter;
 
-        sprite.position.x = tile.x + (diameter * 0.5); // Make up for changed anchor
-        sprite.position.y = tile.y + (diameter * 0.5);
+        self.sprite.position.x = tile.x + (diameter * 0.5); // Make up for changed anchor
+        self.sprite.position.y = tile.y + (diameter * 0.5);
 
-        sprite.interactive = true;
-        sprite.on('mouseup', flip);
-        function flip ()
+        self.sprite.interactive = true;
+        self.sprite.on('mouseup', mousePress);
+        self.sprite.on('touchend', mousePress);
+        function mousePress ()
         {
-            var player = (self.player === 2) ? 1 : 2;
-            self.flip(player);
+            var move = { x: tile.column, y: tile.row };
+            self.game.makeMove(move);
         }
     }
 
@@ -144,8 +159,7 @@ function Mushroom (tile, diameter, game)
             case 2: 
                 return globals.textures.mushroomBlue.texture;
             default:
-                console.log("Invalid Player For Flip");
-                return null;
+                return globals.textures.transparent.texture;
         }
     }
 }

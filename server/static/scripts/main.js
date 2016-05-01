@@ -16,10 +16,10 @@ var othelloModule = angular.module("othelloApp", ["ngRoute", "ngHamburger"])
     "authenticationFactory", "userFactory", "matchFactory", 
     require("./controllers/sidebar-controller")
 ])
-// .controller("pixiController", [
-//     "$window", "$scope",
-//     require("./controllers/pixi-controller")
-// ])
+.controller("pixiController", [
+    "$window", "$scope", "matchFactory",
+    require("./controllers/pixi-controller")
+])
 .controller("mainController", [
     "authenticationFactory", "userFactory", "matchFactory", "$document", "$scope", 
     require("./controllers/main-controller")

@@ -31,6 +31,7 @@ function MatchesConstructor ()
         } else {
             Match.findAllContainingPlayer(req.user._id, function (err, matches) {
                 if (err) { return reportUnknownError(err, res); }
+                console.log(matches);
                 res.json({ message: "All Matches", matches: matches});
             });
         }
@@ -38,7 +39,8 @@ function MatchesConstructor ()
     self.show = function (req, res)
     {
         var matchId = req.params.id;
-        Match.findById(matchId).lean().exec(function (err, match) {
+        Match.findById(matchId, function (err, match) {
+            console.log("Before:", match);
             if (err) { return reportUnknownError(err, res); }
             if (!match) { return res.status(404).json({ message: "No Matches With Id `" + matchId + "`" }); }
             if (match.players[0].toString() != req.user._id && match.players[1].toString() != req.user._id) {
@@ -47,10 +49,13 @@ function MatchesConstructor ()
             if (req.query.showValidMoves) {
                 Match.getValidMoves(matchId, function (err, validMoves) {
                     if (err) { return reportUnknownError(err, res); }
-                    match.validMoves = validMoves;
-                    res.json({ message: "Found Match, All Valid Moves Shown", match: match });
+                    res.json({ 
+                        message: "Found Match, All Valid Moves Shown", 
+                        match: { _id: match._id, validMoves: validMoves, turn: match.turn } 
+                    });
                 });
             } else {
+                console.log("After:", match);
                 res.json({ message: "Found Match", match: match });
             }
         });
@@ -98,7 +103,7 @@ function MatchesConstructor ()
     self.update = function (req, res)
     {
         var matchId = req.params.id;
-        var move = JSON.parse(req.body.move);
+        var move = req.body.move;
         var pid = req.user._id;
         if (move) {
             Match.makeMove(matchId, move, pid, function (err, match) {

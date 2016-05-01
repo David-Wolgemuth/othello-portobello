@@ -27,6 +27,7 @@ function Globals()
             PIXI.loader
             .add("mushroomRed", "images/mushroom-tile-red.png")
             .add("mushroomBlue", "images/mushroom-tile-blue.png")
+            .add("transparent", "images/transparent.png")
             .load(function (loader, resources) {
                 self.textures = resources;
                 resolve();

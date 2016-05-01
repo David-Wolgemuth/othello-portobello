@@ -14,3 +14,11 @@ canvas, pixi {
 	margin: 0 auto;
 	font-size: 0;
 }
+
+#refresh-button, #hamburger-button {
+	position: fixed;
+	top: 0;	
+}
+#refresh-button {
+	right: 0;
+}

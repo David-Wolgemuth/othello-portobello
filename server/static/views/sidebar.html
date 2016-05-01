@@ -1,9 +1,9 @@
 
 <div ng-controller="sidebarController as sbc">
 
-<hamburger-toggle ng-click="sbc.update();" ng-if="mc.loggedIn == true" state="mc.hamburger"></hamburger-toggle>
+<hamburger-toggle ng-click="sbc.update();" id="hamburger-button" ng-if="mc.loggedIn == true" state="sbc.open"></hamburger-toggle>
 
-<div class="sidenav" ng-class="{open: mc.hamburger}">
+<div class="sidenav" ng-class="{open: sbc.open}">
 	<ul class="nav nav-pills nav-stacked">
 		<li role="presentation" class="active"><a href="#">Home</a></li>
 		<li role="presentation"><a href ng-click="mc.checkLoginState()">Check Status</a></li>
@@ -17,7 +17,7 @@
 			</a>
 		</li>
 		<li ng-if="!matchesHidden" ng-repeat="match in sbc.matches | orderBy : '-currentTurn'">
-			<a href>
+			<a href ng-click="sbc.clickedMatch(match);">
 				<img ng-src="{{ match.opponent.imgSmall }}" width="40" height="40" alt="IMG" class="small-profile-image">
 				<span ng-bind="match.opponent.name"></span>
 				<span class="pull-right" ng-class="{ 'glyphicon glyphicon-exclamation-sign' : match.currentTurn }" ></span>

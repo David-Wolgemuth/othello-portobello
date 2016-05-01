@@ -24,8 +24,6 @@ function AuthenticationFactory ($q, $http)
     {
         var deferred = $q.defer();
 
-        $http.defaults.headers.common["x-auth-token"] = factory.token;
-
         switch (response.status) {
             case ("connected"):
                 factory.setToken(response.authResponse.accessToken);
@@ -47,6 +45,7 @@ function AuthenticationFactory ($q, $http)
     };
     factory.setToken = function (token)
     {
+        console.log(token);
         factory.token = token;
         $http.defaults.headers.common["x-auth-token"] = factory.token;
     };

@@ -1,9 +1,8 @@
 /*****
     Othello Game
 */
-var validations = require("./othello-validations");
 
-
+module.exports = new OthelloLogic();
 
 //------------ Constants -------------//
 
@@ -13,150 +12,11 @@ var DIRECTIONS = [
     [0, -1], [-1, -1], [-1, 0], [-1, 1]
 ];
 
-//------------ Private Functions ------------//
-function isInt(value) {
-    if (isNaN(value)) {
-        return false;
-    }
-    var x = parseInt(value);
-    return (x | 0) === x;
-}
-function randomElementInArray(array)
-{
-    return array[Math.floor(Math.random() * array.length)];
-}
-function inBounds(tile) 
-{
-    var x = tile.x, y = tile.y;
-    return !(x < 0 || y < 0 || x >= TILES || y >= TILES);
-}
-function isCorner(tile)
-{
-    var x = tile.x, y = tile.y;
-    var c = TILES - 1;
-    return ((x === 0 && y === 0) || (x === 0 && y === c) ||
-            (x === c && y === 0) || (x === c && y === c));
-}
-function increment(tile, direction, reversed) 
-{
-    var multiplier = (reversed) ? -1 : 1;
-    tile.x += direction[0] * multiplier;
-    tile.y += direction[1] * multiplier;
-}
-function checkDirection(board, move, direction)  // -> [{ x: Int, y: Int }]
-{
-    var flipped = [];
-    var tile = {x: move.x, y: move.y};
-    var opponent = (move.player % 2) + 1;
-
-    increment(tile, direction);
-    if (!inBounds(tile) || board[tile.y][tile.x] != opponent) {
-        //  Touching Tile Must Be Opponent
-        return flipped;
-    }
-    increment(tile, direction);
-    while(inBounds(tile) && board[tile.y][tile.x] == opponent) {
-        // Traverse Down Opponent Tiles Towards Player Tile
-        increment(tile, direction);
-    }
-    if (!inBounds(tile) || board[tile.y][tile.x] != move.player) {
-        // End Tile Must Be Player's Tile
-        return flipped;
-    }
-    while (!(tile.x == move.x && tile.y == move.y)) {
-        // Traverse Back Up Confirmed Tiles
-        increment(tile, direction, "REVERSE");
-        flipped.push({ x: tile.x, y: tile.y });
-    }
-    return flipped;
-}
-
-
 //------------ Othello Object + Methods -------------//
 
-function OthelloContructor() {    
+function OthelloLogic() {
     var self = this;
-    self.validate = function(toValidate, args)
-    /*
-        throws if valid
-    */
-    {
-        if (!args) { args = {}; }
-        var error;
-        if ("player" in toValidate) {
-            error = self.checkPlayerIsValid(toValidate.player, args.player);
-            if (error) {
-                throw error;
-            }
-        }
-        if ("board" in toValidate) {
-            error = self.checkBoardIsValid(toValidate.board, args.board);
-            if (error) {
-                throw error;
-            }
-        }
-        if ("move" in toValidate) {
-            error = self.checkMoveIsValid(toValidate.move, args.move);
-            if (error) {
-                throw error;
-            }
-        }
-    };
-    self.checkBoardIsValid = function (board) 
-    /*
-        -> err if not Array with 8 Arrays Containing 8 Ints (0, 1, or 2)
-    */
-    {
-        if (!Array.isArray(board) || board.length != TILES) {
-            return "Board Not Valid";
-        }
-        for (var x = 0; x < TILES; x++) {
-            if (!Array.isArray(board[x]) || board[x].length != TILES) {
-                return "Board Not Valid";
-            }
-            for (var y = 0; y < TILES; y++) {
-                var value = board[x][y];
-                if (value !== 0 && value !== 1 && value !== 2) {
-                    return "Board Not Valid";
-                }
-            }
-        }
-    };
-    self.checkMoveIsValid = function (move)
-    /*
-        -> err if not { x: Int, y: Int, player: Int } Where x and y are 0 < 8 and player == 1 or 2
-    */
-    {
-        if (typeof move != "object") {
-            return "Invalid Move";
-        }
-        if (!("x" in move && "y" in move && "player" in move)) {
-            return "Invalid Move";
-        }
-        var x = move.x, y = move.y;
-        if (!(isInt(x) && isInt(y))) {
-            return "Move Coordinates Not Integers";
-        }
-        if(x < 0 || y < 0 || x > TILES || y > TILES) {
-            return "Move Not Within Bounds";
-        }
-        if (move.player !== 1 && move.player !== 2) {
-            return "Move Does Not Have Valid Player";
-        }
-    };
-    self.checkPlayerIsValid = function (player, canBeZero)
-    /*
-        -> err if not 1 or 2 (or 0 if okay)
-    */
-    {
-        if (player === 1 || player === 2) {
-            return;
-        }
-        if (canBeZero && player === 0) {
-            return;
-        }
-        return "Invalid Player";
-    };
+    
     self.makeEmptyBoard = function ()
     /*
         ->  [[0, 0, ...],  ...]
@@ -316,7 +176,146 @@ function OthelloContructor() {
         }
         return 0;
     };
+    self.validate = function(toValidate, args)
+    /*
+        throws if valid
+    */
+    {
+        if (!args) { args = {}; }
+        var error;
+        if ("player" in toValidate) {
+            error = self.checkPlayerIsValid(toValidate.player, args.player);
+            if (error) {
+                throw error;
+            }
+        }
+        if ("board" in toValidate) {
+            error = self.checkBoardIsValid(toValidate.board, args.board);
+            if (error) {
+                throw error;
+            }
+        }
+        if ("move" in toValidate) {
+            error = self.checkMoveIsValid(toValidate.move, args.move);
+            if (error) {
+                throw error;
+            }
+        }
+    };
+    self.checkBoardIsValid = function (board) 
+    /*
+        -> err if not Array with 8 Arrays Containing 8 Ints (0, 1, or 2)
+    */
+    {
+        if (!Array.isArray(board) || board.length != TILES) {
+            console.log(Array.isArray(board));
+            console.log(board.length, TILES);
+            return "Board Not Valid";
+        }
+        for (var x = 0; x < TILES; x++) {
+            if (!Array.isArray(board[x]) || board[x].length != TILES) {
+                return "Board Not Valid";
+            }
+            for (var y = 0; y < TILES; y++) {
+                var value = board[x][y];
+                if (value !== 0 && value !== 1 && value !== 2) {
+                    return "Board Not Valid";
+                }
+            }
+        }
+    };
+    self.checkMoveIsValid = function (move)
+    /*
+        -> err if not { x: Int, y: Int, player: Int } Where x and y are 0 < 8 and player == 1 or 2
+    */
+    {
+        if (typeof move != "object") {
+            return "Invalid Move";
+        }
+        if (!("x" in move && "y" in move && "player" in move)) {
+            return "Invalid Move";
+        }
+        var x = move.x, y = move.y;
+        if (!(isInt(x) && isInt(y))) {
+            return "Move Coordinates Not Integers";
+        }
+        if(x < 0 || y < 0 || x > TILES || y > TILES) {
+            return "Move Not Within Bounds";
+        }
+        if (move.player !== 1 && move.player !== 2) {
+            return "Move Does Not Have Valid Player";
+        }
+    };
+    self.checkPlayerIsValid = function (player, canBeZero)
+    /*
+        -> err if not 1 or 2 (or 0 if okay)
+    */
+    {
+        if (player === 1 || player === 2) {
+            return;
+        }
+        if (canBeZero && player === 0) {
+            return;
+        }
+        return "Invalid Player";
+    };
 }
 
-module.exports = new OthelloContructor();
 
+//------------ Private Functions ------------//
+function isInt(value) {
+    if (isNaN(value)) {
+        return false;
+    }
+    var x = parseInt(value);
+    return (x | 0) === x;
+}
+function randomElementInArray(array)
+{
+    return array[Math.floor(Math.random() * array.length)];
+}
+function inBounds(tile) 
+{
+    var x = tile.x, y = tile.y;
+    return !(x < 0 || y < 0 || x >= TILES || y >= TILES);
+}
+function isCorner(tile)
+{
+    var x = tile.x, y = tile.y;
+    var c = TILES - 1;
+    return ((x === 0 && y === 0) || (x === 0 && y === c) ||
+            (x === c && y === 0) || (x === c && y === c));
+}
+function increment(tile, direction, reversed) 
+{
+    var multiplier = (reversed) ? -1 : 1;
+    tile.x += direction[0] * multiplier;
+    tile.y += direction[1] * multiplier;
+}
+function checkDirection(board, move, direction)  // -> [{ x: Int, y: Int }]
+{
+    var flipped = [];
+    var tile = {x: move.x, y: move.y};
+    var opponent = (move.player % 2) + 1;
+
+    increment(tile, direction);
+    if (!inBounds(tile) || board[tile.y][tile.x] != opponent) {
+        //  Touching Tile Must Be Opponent
+        return flipped;
+    }
+    increment(tile, direction);
+    while(inBounds(tile) && board[tile.y][tile.x] == opponent) {
+        // Traverse Down Opponent Tiles Towards Player Tile
+        increment(tile, direction);
+    }
+    if (!inBounds(tile) || board[tile.y][tile.x] != move.player) {
+        // End Tile Must Be Player's Tile
+        return flipped;
+    }
+    while (!(tile.x == move.x && tile.y == move.y)) {
+        // Traverse Back Up Confirmed Tiles
+        increment(tile, direction, "REVERSE");
+        flipped.push({ x: tile.x, y: tile.y });
+    }
+    return flipped;
+}

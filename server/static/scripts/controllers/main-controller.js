@@ -4,9 +4,12 @@ module.exports = MainController;
 function MainController (Auth, User, Match, $document, $scope)
 {
     var self = this;
-    self.hamburger = false;
     self.toggleVisibleGames = false;
 
+    self.refresh = function ()
+    {
+        Match.refresh();
+    };
     self.login = function ()
     {
         Auth.login()

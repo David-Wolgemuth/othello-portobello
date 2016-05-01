@@ -2,7 +2,7 @@
     Match Mongoose Model
 */
 var mongoose = require("mongoose");
-var othello = require("./othello.js");
+var Othello = require("../othello-logic.js");
 
 var MatchSchema = new mongoose.Schema({
     winner: {
@@ -19,7 +19,7 @@ var MatchSchema = new mongoose.Schema({
     },
     board: {
         type: String,
-        default: JSON.stringify(othello.makeEmptyBoard())
+        default: JSON.stringify(Othello.makeEmptyBoard())
     },
     players: [{
         type: mongoose.Schema.Types.ObjectId,
@@ -175,7 +175,7 @@ MatchSchema.statics.getValidMoves = function (matchId, callback)
         if (!match) {
             return callback("No Match Found With Id: `" + matchId + "`");
         }
-        var moves = othello.getAllValidMoves(match.getBoard(), match.turn);
+        var moves = Othello.getAllValidMoves(match.getBoard(), match.turn);
         callback(null, moves);
     });
 };
@@ -214,16 +214,19 @@ MatchSchema.statics.makeMove = function (matchId, move, playerId, callback)
         if (move.player != match.turn) {
             return callback("Isn't Player's Turn");
         }
-        var pid = match.players[move.turn].toString();
+        if (!match.players[match.turn - 1]) {
+            console.log("Cannot Get Player Turn");
+        }
+        var pid = match.players[match.turn - 1].toString();
         if (!match.isPlayersTurn(pid)) {
             return callback("Isn't Player's Turn");
         }
-        var invalid = othello.checkMoveIsValid(move);
+        var invalid = Othello.checkMoveIsValid(move);
         if (invalid) {
             return callback(invalid);
         }
         var board = match.getBoard();
-        var flipped = othello.makeMove(board, move);
+        var flipped = Othello.makeMove(board, move);
         match.setBoard(board);
         if (!flipped) {
             return callback("No Tiles Flipped On Turn.");
@@ -248,7 +251,7 @@ MatchSchema.statics.makeMoveAI = function (matchId, callback)
             return callback("Match Not Found With ID `" + matchId + "`");
         }
         var board = match.getBoard();
-        var invalid = othello.checkBoardIsValid(board);
+        var invalid = Othello.checkBoardIsValid(board);
         if (invalid) {
             return callback(err);
         }
@@ -257,14 +260,14 @@ MatchSchema.statics.makeMoveAI = function (matchId, callback)
         }
         var move;
         if (match.ai == "easy_ai") {
-            move = othello.getRandomMove(board, 2);
+            move = Othello.getRandomMove(board, 2);
         } else {
-            move = othello.getMoveCornerOrMostFlipped(board, 2);
+            move = Othello.getMoveCornerOrMostFlipped(board, 2);
         }
         if (!move) {
             return callback("No Valid Moves. Is Game Over?");
         }
-        othello.makeMove(board, move);
+        Othello.makeMove(board, move);
         match.setBoard(board);
         match.turn = 1;
         match.save(callback);
